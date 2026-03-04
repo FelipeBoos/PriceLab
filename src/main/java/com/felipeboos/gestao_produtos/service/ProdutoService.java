@@ -13,8 +13,14 @@ public class ProdutoService {
         this.repository = repository;
     }
 
-    public void salvarProduto(Produto produto) {
-        repository.saveAndFlush(produto);
+    public Produto salvarProduto(Produto produto) {
+        return repository.saveAndFlush(produto);
+    }
+
+    public Produto buscarProdutoPorId(Long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new RuntimeException("Id não encontrado")
+        );
     }
 
     public Produto buscarProdutoPorNome(String nome) {
@@ -24,32 +30,33 @@ public class ProdutoService {
         );
     }
 
-    public void deletarProdutoPorNome(String nome) {
-        repository.deleteByNome(nome);
+    public void deletarProdutoPorId(Long id) {
+        repository.deleteById(id);
     }
 
-    public void atualizarProdutoPorId(Long id, Produto produto) {
-        Produto produtoEntity = repository.findById(id).orElseThrow(
-                () -> new RuntimeException("Id não encontrado")
-        );
+    public void atualizarProdutoPorId(Long id, Produto produtoPatch) {
+        Produto produtoEntity = buscarProdutoPorId(id);
 
-        Produto produtoAtualizado = Produto.builder()
-                .nome(produto.getNome() != null ? produto.getNome() : produtoEntity.getNome())
-                .descricao(produto.getDescricao() != null ? produto.getDescricao() : produtoEntity.getDescricao())
-                .id(produtoEntity.getId())
-                .build();
+        aplicarAlteracoes(produtoEntity, produtoPatch);
 
-        repository.saveAndFlush(produtoAtualizado);
+        repository.saveAndFlush(produtoEntity);
     }
 
-    public void atualizarProdutoPorNome(String nome, Produto produto) {
+    public void atualizarProdutoPorNome(String nome, Produto produtoPatch) {
         Produto produtoEntity = buscarProdutoPorNome(nome);
 
-        Produto produtoAtualizado = Produto.builder()
-                .nome(produto.getNome() != null ? produto.getNome() : produtoEntity.getNome())
-                .id(produtoEntity.getId())
-                .build();
+        aplicarAlteracoes(produtoEntity, produtoPatch);
 
-        repository.saveAndFlush(produtoAtualizado);
+        repository.saveAndFlush(produtoEntity);
+    }
+
+    private void aplicarAlteracoes(Produto produtoEntity, Produto produtoPatch) {
+        if (produtoPatch.getNome() != null) produtoEntity.setNome(produtoPatch.getNome());
+        if (produtoPatch.getDescricao() != null) produtoEntity.setDescricao(produtoPatch.getDescricao());
+        if (produtoPatch.getPrecoCusto() != null) produtoEntity.setPrecoCusto(produtoPatch.getPrecoCusto());
+        if (produtoPatch.getPrecoVenda() != null) produtoEntity.setPrecoVenda(produtoPatch.getPrecoVenda());
+        if (produtoPatch.getQuantidadeEstoque() != null) {
+            produtoEntity.setQuantidadeEstoque(produtoPatch.getQuantidadeEstoque());
+        }
     }
 }

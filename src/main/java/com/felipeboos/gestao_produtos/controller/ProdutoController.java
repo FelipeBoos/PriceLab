@@ -7,23 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/produto")
+@RequestMapping("/produtos")
 @RequiredArgsConstructor
 public class ProdutoController {
 
     private final ProdutoService produtoService;
 
-    @PostMapping
-    public ResponseEntity<Void> salvarProduto(@RequestBody Produto produto) {
-        produtoService.salvarProduto(produto);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping
-    public ResponseEntity<Void> atualizarProdutoPorId(@RequestParam Long id,
-                                                      @RequestBody Produto produto) {
-        produtoService.atualizarProdutoPorId(id, produto);
-        return ResponseEntity.ok().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<Produto> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(produtoService.buscarProdutoPorId(id));
     }
 
     @GetMapping
@@ -31,9 +23,22 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.buscarProdutoPorNome(nome));
     }
 
+    @PostMapping
+    public ResponseEntity<Produto> salvarProduto(@RequestBody Produto produto) {
+        Produto produtoSalvo = produtoService.salvarProduto(produto);
+        return ResponseEntity.status(201).body(produtoSalvo);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> atualizarProdutoPorId(@PathVariable Long id,
+                                                      @RequestBody Produto produto) {
+        produtoService.atualizarProdutoPorId(id, produto);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping
-    public ResponseEntity<Produto> deletarUsuarioPorNome(@RequestParam String nome) {
-        produtoService.deletarProdutoPorNome(nome);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Produto> deletarProdutoPorId(@RequestParam Long id) {
+        produtoService.deletarProdutoPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }
