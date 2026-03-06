@@ -1,2 +1,17 @@
-<h1>Categorias</h1>
-<p>Página de categorias</p>
+<div>
+    <h1>Categorias</h1>
+
+    <form (ngSubmit)="salvarCategoria()">
+        <div>
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" [(ngModel)]="nome" name="nome">
+        </div>
+
+        <div>
+            <label for="descricao">Descrição</label>
+            <input id="nome" type="text" [(ngModel)]="descricao" name="descricao">
+        </div>
+
+        <button type="submit">Salvar</button>
+    </form>
+</div>

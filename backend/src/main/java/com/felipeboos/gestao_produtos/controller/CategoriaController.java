@@ -17,6 +17,7 @@ public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
+
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponseDTO> buscarCategoriaPorId(@PathVariable Long id) {
         return ResponseEntity.ok(categoriaService.buscarCategoriaPorId(id));
