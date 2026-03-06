@@ -1,15 +1,48 @@
 import { Routes } from '@angular/router';
-import { Home } from './components/home/home'
-import { Login } from './pages/login/login';
+import { MainLayout } from './layouts/main-layout/main-layout';
+import { Home } from './features/home/home';
+import { Produtos } from './features/produtos/produtos';
+import { Categorias } from './features/categorias/categorias';
+import { Pedidos } from './features/pedidos/pedidos';
+import { Usuarios } from './features/usuarios/usuarios';
 
 export const routes: Routes = [
     {
-        path: "login",
-        component: Login
+        path: '',
+        redirectTo: 'app',
+        pathMatch: 'full'
     },
+
     {
-        path: "",
-        component: Home
+        path: 'app',
+        component: MainLayout,
+        children: [
+            {
+                path: '',
+                component: Home,
+                pathMatch: 'full'
+            },
+            {
+                path: 'home',
+                component: Home
+            },
+            {
+                path: 'produtos',
+                component: Produtos
+            },
+            {
+                path: 'categorias',
+                component: Categorias
+            },
+            {
+                path: 'pedidos',
+                component: Pedidos
+            },
+            {
+                path: 'usuarios',
+                component: Usuarios
+            }
+        ]
     }
 
 ];

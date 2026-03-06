@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DefaultLoginLayout } from './default-login-layout';
+import { Produtos } from './produtos';
 
-describe('DefaultLoginLayout', () => {
-  let component: DefaultLoginLayout;
-  let fixture: ComponentFixture<DefaultLoginLayout>;
+describe('Produtos', () => {
+  let component: Produtos;
+  let fixture: ComponentFixture<Produtos>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DefaultLoginLayout],
+      imports: [Produtos],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DefaultLoginLayout);
+    fixture = TestBed.createComponent(Produtos);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
