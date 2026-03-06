@@ -1,7 +1,10 @@
 package com.felipeboos.gestao_produtos.controller;
 
-import com.felipeboos.gestao_produtos.entity.Produto;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoRequestDTO;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoResponseDTO;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoUpdateDTO;
 import com.felipeboos.gestao_produtos.service.ProdutoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,30 +17,30 @@ public class ProdutoController {
     private final ProdutoService produtoService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Produto> buscarProdutoPorId(@PathVariable Long id) {
+    public ResponseEntity<ProdutoResponseDTO> buscarProdutoPorId(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.buscarProdutoPorId(id));
     }
 
     @GetMapping
-    public ResponseEntity<Produto> buscarProdutoPorNome(@RequestParam String nome) {
+    public ResponseEntity<ProdutoResponseDTO> buscarProdutoPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(produtoService.buscarProdutoPorNome(nome));
     }
 
     @PostMapping
-    public ResponseEntity<Produto> salvarProduto(@RequestBody Produto produto) {
-        Produto produtoSalvo = produtoService.salvarProduto(produto);
+    public ResponseEntity<ProdutoResponseDTO> salvarProduto(@RequestBody @Valid ProdutoRequestDTO produto) {
+        ProdutoResponseDTO produtoSalvo = produtoService.salvarProduto(produto);
         return ResponseEntity.status(201).body(produtoSalvo);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> atualizarProdutoPorId(@PathVariable Long id,
-                                                      @RequestBody Produto produto) {
+                                                      @RequestBody @Valid ProdutoUpdateDTO produto) {
         produtoService.atualizarProdutoPorId(id, produto);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping
-    public ResponseEntity<Produto> deletarProdutoPorId(@RequestParam Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarProdutoPorId(@PathVariable Long id) {
         produtoService.deletarProdutoPorId(id);
         return ResponseEntity.noContent().build();
     }
