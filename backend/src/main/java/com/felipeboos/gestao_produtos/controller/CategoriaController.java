@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/categorias")
 @RequiredArgsConstructor
@@ -24,8 +26,14 @@ public class CategoriaController {
     }
 
     @GetMapping
-    public ResponseEntity<CategoriaResponseDTO> buscarCategoriaPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(categoriaService.buscarCategoriaPorNome(nome));
+    public ResponseEntity<List<CategoriaResponseDTO>> listarCategorias(
+            @RequestParam(required = false) String nome) {
+
+        if (nome != null) {
+            return ResponseEntity.ok(categoriaService.buscarCategoriaPorNome(nome));
+        }
+
+        return ResponseEntity.ok(categoriaService.listarTodasAsCategorias());
     }
 
     @PostMapping

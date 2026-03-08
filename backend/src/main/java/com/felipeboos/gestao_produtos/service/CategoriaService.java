@@ -7,6 +7,9 @@ import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.ArrayList;
+
 @Service
 public class CategoriaService {
 
@@ -34,13 +37,25 @@ public class CategoriaService {
         return CategoriaResponseDTO.fromEntity(categoria);
     }
 
-    public CategoriaResponseDTO buscarCategoriaPorNome(String nome) {
+    public List<CategoriaResponseDTO> buscarCategoriaPorNome(String nome) {
 
         Categoria categoria = repository.findByNome(nome).orElseThrow(
                 () -> new RuntimeException("Nome nao encontrado")
         );
 
-        return CategoriaResponseDTO.fromEntity(categoria);
+        return List.of(CategoriaResponseDTO.fromEntity(categoria));
+    }
+
+    public List<CategoriaResponseDTO> listarTodasAsCategorias() {
+        List<Categoria> listaCategorias = repository.findAll();
+
+        List<CategoriaResponseDTO> listaCategoriasResponse = new ArrayList<>();
+
+        for (Categoria categoria : listaCategorias) {
+            listaCategoriasResponse.add(CategoriaResponseDTO.fromEntity(categoria));
+        }
+
+        return listaCategoriasResponse;
     }
 
     public void deletarCategoriaPorId(Long id) {

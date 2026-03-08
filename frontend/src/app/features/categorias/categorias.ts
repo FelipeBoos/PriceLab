@@ -22,6 +22,7 @@ export class Categorias {
 
     this.categoriaService.cadastrarCategoria(categoria).subscribe({
       next: (resposta) => {
+        alert("Categoria cadastrada com sucesso");
         console.log('Categoria cadastrada com sucesso:', resposta);
         this.nome = '';
         this.descricao = '';
