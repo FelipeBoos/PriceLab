@@ -50,15 +50,19 @@
         </thead>
 
         <tbody>
-        @for (categoria of categorias(); track categoria.id) {
-            <tr>
-            <td>{{ categoria.id }}</td>
-            <td>{{ categoria.nome }}</td>
-            <td>{{ categoria.descricao }}</td>
-            <td><button type="button" (click)="editarCategoria(categoria.id)">Editar</button></td>
-            <td><button type="button" (click)="deletarCategoria(categoria.id)">Deletar</button></td>
-            </tr>
-        }
+            @for (categoria of categorias(); track categoria.id) {
+                <tr>
+                    <td>{{ categoria.id }}</td>
+                    <td>{{ categoria.nome }}</td>
+                    <td>{{ categoria.descricao }}</td>
+                    <td>
+                        <button type="button" (click)="editarCategoria(categoria.id)">Editar</button>
+                    </td>
+                    <td>
+                        <button type="button" (click)="deletarCategoria(categoria.id)">Deletar</button>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
     } 

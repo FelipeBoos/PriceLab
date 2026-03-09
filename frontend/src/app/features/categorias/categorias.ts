@@ -21,7 +21,7 @@ export class Categorias implements OnInit {
   constructor(private categoriaService: CategoriaService) {}
 
   ngOnInit(): void {
-    console.log('ngOnInit da página Categorias');
+    //console.log('ngOnInit da página Categorias');
     this.carregarCategorias();
   }
 
