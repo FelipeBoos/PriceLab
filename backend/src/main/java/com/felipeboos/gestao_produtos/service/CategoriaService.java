@@ -47,7 +47,7 @@ public class CategoriaService {
     }
 
     public List<CategoriaResponseDTO> listarTodasAsCategorias() {
-        List<Categoria> listaCategorias = repository.findAll();
+        List<Categoria> listaCategorias = repository.findAllByOrderByIdAsc();
 
         List<CategoriaResponseDTO> listaCategoriasResponse = new ArrayList<>();
 

@@ -1,6 +1,17 @@
 <div>
     <h1>Categorias</h1>
 
+    <div>
+        <button type="button" (click)="incluirCategoria()">+ Nova</button>
+        <button type="button" (click)="filtrarCategoria()">Filtrar</button>
+    </div>
+
+    <hr />
+
+    @if (exibirFormulario) {
+    <h2>
+        {{ categoriaEmEdicaoId === null ? 'Nova Categoria' : 'Editar Categoria'}}
+    </h2>
     <form (ngSubmit)="salvarCategoria()">
         <div>
             <label for="nome">Nome</label>
@@ -12,29 +23,34 @@
             <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
         </div>
 
-        <button type="submit">Salvar</button>
+        <button type="submit">
+            {{ categoriaEmEdicaoId === null ? 'Salvar' : 'Atualizar'}}
+        </button>
+        <button type="button" (click)="resetarFormulario()">Cancelar</button>
     </form>
-
-    <hr />
+    <hr>
+    }
 
     <h2>Categorias cadastradas</h2>
 
-    @if (categorias.length === 0) {
+    @if (categorias().length === 0) {
     <p>Nenhuma categoria cadastrada.</p>
     }
 
-    @if (categorias.length > 0) {
+    @if (categorias().length > 0) {
     <table>
         <thead>
         <tr>
             <th>ID</th>
             <th>Nome</th>
             <th>Descrição</th>
+            <th></th>
+            <th></th>
         </tr>
         </thead>
 
         <tbody>
-        @for (categoria of categorias; track categoria.id) {
+        @for (categoria of categorias(); track categoria.id) {
             <tr>
             <td>{{ categoria.id }}</td>
             <td>{{ categoria.nome }}</td>

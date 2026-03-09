@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from './services/categoria.service';
 
 @Component({
@@ -12,15 +13,15 @@ import { CategoriaResponse, CategoriaService } from './services/categoria.servic
 export class Categorias implements OnInit {
   nome = '';
   descricao = '';
-  categorias: CategoriaResponse[] = [];
+  categorias = signal<CategoriaResponse[]>([]);
 
-  constructor(
-    private categoriaService: CategoriaService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  exibirFormulario = false;
+  categoriaEmEdicaoId: number | null = null;
+
+  constructor(private categoriaService: CategoriaService) {}
 
   ngOnInit(): void {
-    console.log('ngOnInt da página Categorias')
+    console.log('ngOnInit da página Categorias');
     this.carregarCategorias();
   }
 
@@ -30,35 +31,45 @@ export class Categorias implements OnInit {
       descricao: this.descricao
     };
 
-    this.categoriaService.cadastrarCategoria(categoria).subscribe({
-      next: (resposta) => {
-        alert("Categoria cadastrada com sucesso");
-        console.log('Categoria cadastrada com sucesso:', resposta);
-        this.nome = '';
-        this.descricao = '';
-
-        this.carregarCategorias();
-      },
-      error: (erro) => {
-        console.error('Erro ao cadastrar categoria:', erro);
-      }
-    });
+    if (this.categoriaEmEdicaoId !== null) {
+      this.categoriaService
+        .atualizarCategoria(this.categoriaEmEdicaoId, categoria)
+        .subscribe({
+          next: () => {
+            alert('Categoria atualizada com sucesso');
+            this.resetarFormulario();
+            this.carregarCategorias();
+          },
+          error: (erro: HttpErrorResponse) => {
+            console.error('Erro ao atualizar categoria', erro);
+          }
+        });
+    } else {
+      this.categoriaService
+        .cadastrarCategoria(categoria)
+        .subscribe({
+          next: () => {
+            alert('Categoria cadastrada com sucesso');
+            this.resetarFormulario();
+            this.carregarCategorias();
+          },
+          error: (erro: HttpErrorResponse) => {
+            console.error('Erro ao cadastrar categoria', erro);
+          }
+        });
+    }
   }
+
   carregarCategorias() {
     this.categoriaService.listarCategorias().subscribe({
       next: (resposta) => {
-        console.log('Categorias recebidas:', resposta)
-        this.categorias = resposta;
-        this.cdr.detectChanges();
+        console.log('Categorias recebidas:', resposta);
+        this.categorias.set(resposta);
       },
-      error: (erro) => {
+      error: (erro: HttpErrorResponse) => {
         console.error('Erro ao listar categorias', erro);
       }
     });
-  }
-
-  editarCategoria(id: number) {
-    console.log('Editar Id: ', id);
   }
 
   deletarCategoria(id: number) {
@@ -68,15 +79,41 @@ export class Categorias implements OnInit {
 
     this.categoriaService.deletarCategoria(id).subscribe({
       next: () => {
-        console.log('Categoria deletada: ', id);
-
+        console.log('Categoria deletada:', id);
         this.carregarCategorias();
       },
-      error: (erro) => {
-        console.log('Erro ao deletar categoria: ', erro);
+      error: (erro: HttpErrorResponse) => {
+        console.error('Erro ao deletar categoria:', erro);
       }
-    })
+    });
   }
 
-}
+  incluirCategoria() {
+    this.exibirFormulario = true;
+    this.categoriaEmEdicaoId = null;
+    this.nome = '';
+    this.descricao = '';
+  }
 
+  editarCategoria(id: number) {
+    const categoria = this.categorias().find((c: CategoriaResponse) => c.id === id);
+
+    if (!categoria) return;
+
+    this.nome = categoria.nome;
+    this.descricao = categoria.descricao;
+    this.exibirFormulario = true;
+    this.categoriaEmEdicaoId = id;
+  }
+
+  filtrarCategoria() {
+    console.log('Filtrar categoria: Ainda não implementado');
+  }
+
+  resetarFormulario() {
+    this.nome = '';
+    this.descricao = '';
+    this.categoriaEmEdicaoId = null;
+    this.exibirFormulario = false;
+  }
+}
