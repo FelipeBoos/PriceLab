@@ -14,4 +14,34 @@
 
         <button type="submit">Salvar</button>
     </form>
+
+    <hr />
+
+    <h2>Categorias cadastradas</h2>
+
+    @if (categorias.length === 0) {
+    <p>Nenhuma categoria cadastrada.</p>
+    }
+
+    @if (categorias.length > 0) {
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @for (categoria of categorias; track categoria.id) {
+            <tr>
+            <td>{{ categoria.id }}</td>
+            <td>{{ categoria.nome }}</td>
+            <td>{{ categoria.descricao }}</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    } 
 </div>

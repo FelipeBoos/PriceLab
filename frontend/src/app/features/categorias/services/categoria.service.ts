@@ -24,5 +24,9 @@ export class CategoriaService {
 
   cadastrarCategoria(categoria: CategoriaRequest): Observable<CategoriaResponse> {
     return this.http.post<CategoriaResponse>(this.apiUrl, categoria);
+  } 
+
+  listarCategorias(): Observable<CategoriaResponse[]> {
+    return this.http.get<CategoriaResponse[]>(this.apiUrl);
   }
 }
