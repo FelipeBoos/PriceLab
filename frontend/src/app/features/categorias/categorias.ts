@@ -36,6 +36,8 @@ export class Categorias implements OnInit {
         console.log('Categoria cadastrada com sucesso:', resposta);
         this.nome = '';
         this.descricao = '';
+
+        this.carregarCategorias();
       },
       error: (erro) => {
         console.error('Erro ao cadastrar categoria:', erro);
@@ -54,5 +56,27 @@ export class Categorias implements OnInit {
       }
     });
   }
+
+  editarCategoria(id: number) {
+    console.log('Editar Id: ', id);
+  }
+
+  deletarCategoria(id: number) {
+    if (!confirm('Deseja realmente deletar esta categoria?')) {
+      return;
+    }
+
+    this.categoriaService.deletarCategoria(id).subscribe({
+      next: () => {
+        console.log('Categoria deletada: ', id);
+
+        this.carregarCategorias();
+      },
+      error: (erro) => {
+        console.log('Erro ao deletar categoria: ', erro);
+      }
+    })
+  }
+
 }
 

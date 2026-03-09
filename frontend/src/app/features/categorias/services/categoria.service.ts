@@ -29,4 +29,8 @@ export class CategoriaService {
   listarCategorias(): Observable<CategoriaResponse[]> {
     return this.http.get<CategoriaResponse[]>(this.apiUrl);
   }
+
+  deletarCategoria(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+  }
 }
