@@ -72,7 +72,7 @@ export class Categorias implements OnInit {
     });
   }
 
-  deletarCategoria(id: number) {
+  deletarCategoria(id: number): void {
     if (!confirm('Deseja realmente deletar esta categoria?')) {
       return;
     }
@@ -80,10 +80,36 @@ export class Categorias implements OnInit {
     this.categoriaService.deletarCategoria(id).subscribe({
       next: () => {
         console.log('Categoria deletada:', id);
+        alert('Categoria deletada com sucesso.');
         this.carregarCategorias();
       },
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao deletar categoria:', erro);
+        console.error('Body do erro:', erro.error);
+
+        const mensagemBackend =
+          typeof erro.error === 'string'
+            ? erro.error
+            : erro.error?.message || '';
+
+        if (
+          erro.status === 400 &&
+          (
+            mensagemBackend.includes('produto vinculado') ||
+            mensagemBackend.includes('produtos vinculados') ||
+            mensagemBackend.includes('categoria se ja existe um produto')
+          )
+        ) {
+          alert('Não é possível excluir esta categoria, pois existe produto vinculado a ela.');
+          return;
+        }
+
+        if (erro.status === 404) {
+          alert('Categoria não encontrada.');
+          return;
+        }
+
+        alert('Ocorreu um erro ao excluir a categoria');
       }
     });
   }
