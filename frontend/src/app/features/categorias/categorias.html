@@ -1,9 +1,9 @@
 <section class="page">
     <h1>Categorias</h1>
 
-    <div>
-        <button type="button" (click)="incluirCategoria()">+ Nova</button>
-        <button type="button" (click)="filtrarCategoria()">Filtrar</button>
+    <div class="actions">
+        <button class="btn btn-primary" type="button" (click)="incluirCategoria()">+ Nova</button>
+        <button class="btn btn-secondary" type="button" (click)="filtrarCategoria()">Filtrar</button>
     </div>
 
     <hr />
@@ -23,10 +23,10 @@
                 <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
             </div>
 
-            <button type="submit">
+            <button class="btn btn-primary" type="submit">
                 {{ categoriaEmEdicaoId === null ? 'Salvar' : 'Atualizar'}}
             </button>
-            <button type="button" (click)="resetarFormulario()">Cancelar</button>
+            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
         </form>
         <hr>
     }
@@ -38,15 +38,15 @@
     }
 
     @if (categorias().length > 0) {
-    <table>
+    <table class="data-table">
         <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th></th>
-            <th></th>
-        </tr>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th></th>
+                <th></th>
+            </tr>
         </thead>
 
         <tbody>
@@ -56,10 +56,10 @@
                     <td>{{ categoria.nome }}</td>
                     <td>{{ categoria.descricao }}</td>
                     <td>
-                        <button type="button" (click)="editarCategoria(categoria.id)">Editar</button>
+                        <button class="btn btn-primary" type="button" (click)="editarCategoria(categoria.id)">Editar</button>
                     </td>
                     <td>
-                        <button type="button" (click)="deletarCategoria(categoria.id)">Deletar</button>
+                        <button class="btn-btn-secondary" type="button" (click)="deletarCategoria(categoria.id)">Deletar</button>
                     </td>
                 </tr>
             }

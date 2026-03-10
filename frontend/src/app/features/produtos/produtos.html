@@ -1,9 +1,9 @@
 <section class="page">
     <h1>Produtos</h1>
 
-    <div>
-        <button type="button" (click)="incluirProduto()">+ Novo</button>
-        <button type="button" (click)="filtrarProduto()">Filtrar</button>
+    <div class="actions">
+        <button class="btn btn-primary" type="button" (click)="incluirProduto()">+ Novo</button>
+        <button class="btn btn-secondary" type="button" (click)="filtrarProduto()">Filtrar</button>
     </div>
 
     <hr>
@@ -45,10 +45,10 @@
                 <label for="quantidadeEstoque">Quantidade em estoque</label>
                 <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque"  name="quantidadeEstoque" required>
             </div>
-            <button type="submit">
+            <button class="btn btn-primary" type="submit">
                 {{ produtoEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}
             </button>
-            <button type="button" (click)="resetarFormulario()">Cancelar</button>
+            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
         </form>
 
         <hr>
@@ -61,7 +61,7 @@
     }
 
     @if (produtos().length > 0) {
-        <table>
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>ID</th>
