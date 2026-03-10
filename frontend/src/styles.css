@@ -3,3 +3,38 @@
     border-radius: 12px;
     padding: 32px;
 }
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+th, td {
+    padding: 14px 16px;
+    text-align: left;
+}
+
+thead {
+    background-color:#bdc3ce;
+}
+
+th {
+    font-size: 14px;
+    font-weight: 600;
+    color: #3a3a3a;
+}
+
+td {
+    font-size: 14px;
+    color: #222;
+}
+
+tbody tr {
+    border-top: 1px solid #b1b2b5;
+}
+
+tbody tr:hover {
+    background-color: #f9fafb;
+}
