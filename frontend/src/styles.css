@@ -2,6 +2,7 @@ html, body {
     margin: 0;
     padding: 0;
     min-height: 100%;
+    font-family: "Poppins", sans-serif;
 }
 
 body {
@@ -61,6 +62,7 @@ tbody tr:hover {
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
+    font-family: inherit;
 }
 
 .btn-delete {
@@ -84,4 +86,10 @@ tbody tr:hover {
 
 .btn-secondary:hover {
     background-color: #d1d5db;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
 }

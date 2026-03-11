@@ -2,13 +2,13 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 240px;
+    width: 150px;
     height: 100vh;
-    padding: 24px 16px;
+    padding: 24px 12px;
 
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 28px;
 
     background-color: #056eb4;
     color: #ffff;
@@ -17,30 +17,33 @@
 .sidebar nav {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .sidebar h2 {
     text-align: center;
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
 }
 
 .sidebar a {
     display: block;
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-radius: 8px;
     text-decoration: none;
-    color: #e1e2f0;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .sidebar a:hover {
-    background-color: #0889df;
+    background-color: #045892;
     color: #ffff;
 }
 
 .sidebar a.active {
-    background-color: #26a4f8;
-    color: #ffff;
+    background-color: #2a8ed1;
+    color: #ffffff;
     font-weight: 600;
 }
