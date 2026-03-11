@@ -88,10 +88,10 @@
                         <td>{{ produto.precoVenda }}</td>
                         <td>{{ produto.quantidadeEstoque }}</td>
                         <td>
-                            <button type="button" (click)="editarProduto(produto.id)">Editar</button>
+                            <button class="btn btn-primary" type="button" (click)="editarProduto(produto.id)">Editar</button>
                         </td>
                         <td>
-                            <button type="button" (click)="deletarProduto(produto.id)">Deletar</button>
+                            <button class="btn btn-delete" type="button" (click)="deletarProduto(produto.id)">Deletar</button>
                         </td>
                     </tr>
                 }    

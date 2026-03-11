@@ -5,12 +5,18 @@ import { Produtos } from './features/produtos/produtos';
 import { Categorias } from './features/categorias/categorias';
 import { Pedidos } from './features/pedidos/pedidos';
 import { Usuarios } from './features/usuarios/usuarios';
+import { Login } from './features/login/login';
 
 export const routes: Routes = [
     {
         path: '',
         redirectTo: 'app',
         pathMatch: 'full'
+    },
+
+    {
+        path: 'login',
+        component: Login
     },
 
     {
@@ -41,7 +47,7 @@ export const routes: Routes = [
             {
                 path: 'usuarios',
                 component: Usuarios
-            }
+            },
         ]
     }
 
