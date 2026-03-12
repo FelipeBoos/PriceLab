@@ -33,4 +33,10 @@ public class Produto extends EntidadeBase {
 
     @Column(name = "quantidade_estoque")
     private Integer quantidadeEstoque;
+
+    @Column(name = "demanda_base")
+    private Integer demandaBase;
+
+    @Column(name = "fator_elasticidade", precision = 5, scale = 2)
+    private BigDecimal fatorElasticidade;
 }
