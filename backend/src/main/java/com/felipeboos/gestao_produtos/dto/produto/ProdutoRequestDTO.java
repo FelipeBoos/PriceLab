@@ -32,4 +32,10 @@ public class ProdutoRequestDTO {
     @NotNull(message = "A quantidade em estoque eh obrigatoria")
     @PositiveOrZero(message = "A quantidade em estoque nao pode ser negativa")
     private Integer quantidadeEstoque;
+
+    @PositiveOrZero(message = "A demanda base nao pode ser negativa")
+    private Integer demandaBase;
+
+    @PositiveOrZero(message = "O fator de elasticidade nao pode ser negativo")
+    private BigDecimal fatorElasticidade;
 }

@@ -19,6 +19,9 @@ public class ProdutoResponseDTO {
 
     private Integer quantidadeEstoque;
 
+    private Integer demandaBase;
+    private BigDecimal fatorElasticidade;
+
     public static ProdutoResponseDTO fromEntity(Produto produto) {
         ProdutoResponseDTO dto = new ProdutoResponseDTO();
 
@@ -34,6 +37,9 @@ public class ProdutoResponseDTO {
         dto.setPrecoCusto(produto.getPrecoCusto());
         dto.setPrecoVenda(produto.getPrecoVenda());
         dto.setQuantidadeEstoque(produto.getQuantidadeEstoque());
+
+        dto.setDemandaBase(produto.getDemandaBase());
+        dto.setFatorElasticidade(produto.getFatorElasticidade());
 
         return dto;
     }
