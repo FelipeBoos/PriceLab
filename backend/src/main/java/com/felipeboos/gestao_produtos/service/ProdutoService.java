@@ -107,6 +107,14 @@ public class ProdutoService {
         if (produtoPatch.getQuantidadeEstoque() != null) {
             produtoEntity.setQuantidadeEstoque(produtoPatch.getQuantidadeEstoque());
         }
+
+        if (produtoPatch.getDemandaBase() != null) {
+            produtoEntity.setDemandaBase(produtoPatch.getDemandaBase());
+        }
+
+        if (produtoPatch.getFatorElasticidade() != null) {
+            produtoEntity.setFatorElasticidade(produtoPatch.getFatorElasticidade());
+        }
     }
 
     private void setCategoria(Produto produtoEntity, Long categoriaId) {
@@ -124,6 +132,8 @@ public class ProdutoService {
                 .precoCusto(dto.getPrecoCusto())
                 .precoVenda(dto.getPrecoVenda())
                 .quantidadeEstoque(dto.getQuantidadeEstoque())
+                .demandaBase(dto.getDemandaBase())
+                .fatorElasticidade(dto.getFatorElasticidade())
                 .build();
 
         setCategoria(produto, dto.getCategoriaId());
