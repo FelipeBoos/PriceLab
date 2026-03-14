@@ -83,6 +83,8 @@ public class EstrategiaPrecoService {
         return listaEstrategiasResponse;
     }
 
+    public void deletarEstrategiaPorId(Long id) { estrategiaPrecoRepository.deleteById(id); }
+
     private EstrategiaPreco calcularEstrategiaPreco(EstrategiaPrecoRequestDTO request, Produto produto) {
 
         BigDecimal precoSugerido = calcularPrecoSugerido(

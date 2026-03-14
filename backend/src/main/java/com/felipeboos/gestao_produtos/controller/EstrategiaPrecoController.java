@@ -43,4 +43,10 @@ public class EstrategiaPrecoController {
             @RequestBody @Valid EstrategiaPrecoRequestDTO request) {
         return ResponseEntity.status(201).body(service.criarEstrategiaPreco(request));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEstrategiaPorId(@PathVariable Long id) {
+        service.deletarEstrategiaPorId(id);
+        return ResponseEntity.noContent().build();
+    }
 }
