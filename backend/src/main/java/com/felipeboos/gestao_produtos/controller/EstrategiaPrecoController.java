@@ -22,4 +22,10 @@ public class EstrategiaPrecoController {
             @RequestBody @Valid EstrategiaPrecoRequestDTO request) {
         return ResponseEntity.ok(service.simularPreco(request));
     }
+
+    @PostMapping
+    public ResponseEntity<EstrategiaPrecoResponseDTO> salvarEstrategiaPreco(
+            @RequestBody @Valid EstrategiaPrecoRequestDTO request) {
+        return ResponseEntity.status(201).body(service.criarEstrategiaPreco(request));
+    }
 }
