@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class EstrategiaPrecoService {
@@ -26,10 +27,28 @@ public class EstrategiaPrecoService {
     }
 
     public EstrategiaPrecoResponseDTO simularPreco(EstrategiaPrecoRequestDTO request) {
-
         Produto produto = produtoRepository.findById(request.getProdutoId()).orElseThrow(
-                () -> new RuntimeException("Nao foi encontrado um produto para esse id")
+                () -> new RuntimeException("Produto nao encontrado")
         );
+
+        EstrategiaPreco estrategia = calcularEstrategiaPreco(request, produto);
+
+        return EstrategiaPrecoResponseDTO.fromEntity(estrategia);
+    }
+
+    public EstrategiaPrecoResponseDTO criarEstrategiaPreco(EstrategiaPrecoRequestDTO request) {
+        Produto produto = produtoRepository.findById(request.getProdutoId()).orElseThrow(
+                () -> new RuntimeException("Produto nao encontrado")
+        );
+
+        EstrategiaPreco estrategia = calcularEstrategiaPreco(request, produto);
+
+        EstrategiaPreco estrategiaSalva = estrategiaPrecoRepository.saveAndFlush(estrategia);
+
+        return EstrategiaPrecoResponseDTO.fromEntity(estrategiaSalva);
+    }
+
+    private EstrategiaPreco calcularEstrategiaPreco(EstrategiaPrecoRequestDTO request, Produto produto) {
 
         BigDecimal precoSugerido = calcularPrecoSugerido(
                 produto.getPrecoCusto(), request.getMargemLucro(), request.getPercentualImposto());
@@ -42,12 +61,8 @@ public class EstrategiaPrecoService {
 
         BigDecimal lucroTotalEstimado = calcularLucroTotalEstimado(lucroUnitario, demandaEstimada);
 
-        EstrategiaPreco estrategiaPreco = toEntity(
-                request, produto, precoSugerido, lucroUnitario, demandaEstimada, lucroTotalEstimado, Instant.now());
-
-        EstrategiaPreco estrategiaSalva = estrategiaPrecoRepository.saveAndFlush(estrategiaPreco);
-
-        return EstrategiaPrecoResponseDTO.fromEntity(estrategiaSalva);
+        return toEntity(request, produto, precoSugerido, lucroUnitario,
+                demandaEstimada, lucroTotalEstimado, Instant.now());
     }
 
     private BigDecimal calcularPrecoSugerido(
