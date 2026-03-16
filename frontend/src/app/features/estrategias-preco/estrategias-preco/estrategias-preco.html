@@ -1,4 +1,48 @@
 <section class="page">
     <h1>Estratégias de Preço</h1>
-    <p>Tela de estratégias de preço</p>
+
+    <div class="actions">
+        <button class="btn btn-primary" type="button" (click)="botaoSimular()">+ Simular estratégia de preço</button>
+        <button class="btn btn-secondary" type="button" (click)="botaoFiltrar()">Filtrar</button>
+    </div>
+
+    <hr>
+
+    <h2>Estratégias de Preço cadastradas</h2>
+
+    <p>Nenhuma Estratégia de Preço cadastrada.</p>
 </section>
+
+@if (mostrarModalSimulacao) {
+    <div class="overlay" (click)="fecharSimulacao()">
+        <div class="modal-simulacao" (click)="$event.stopPropagation()">
+            <h2>Simular Estratégia de Preço</h2>
+
+            <p>Formulário de simulação</p>
+
+            <form action="">
+                <div>
+                    <label for="produto">Produto</label>
+                    <select name="" id="">
+                        <option >Selecione um produto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="">Margem de lucro</label>
+                    <input type="number">
+                </div>
+
+                <div>
+                    <label for="">Percentual de imposto</label>
+                    <input type="number">
+                </div>
+            </form>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary">Simular</button>
+                <button class="btn btn-secondary" (click)="fecharSimulacao()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+}

@@ -6,4 +6,22 @@ import { Component } from '@angular/core';
   templateUrl: './estrategias-preco.html',
   styleUrl: './estrategias-preco.css',
 })
-export class EstrategiasPreco {}
+export class EstrategiasPreco {
+  mostrarModalSimulacao = false;
+
+  botaoSimular(): void {
+    this.abrirSimulacao();
+  }
+
+  botaoFiltrar(): void {
+    alert('Botão filtrar: ainda não implementado');
+  }
+
+  abrirSimulacao(): void {
+    this.mostrarModalSimulacao = true;
+  }
+
+  fecharSimulacao(): void {
+    this.mostrarModalSimulacao = false;
+  }
+}

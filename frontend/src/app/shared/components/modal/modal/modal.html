@@ -1,0 +1,16 @@
+@if (aberto) {
+    <div class="overlay" (click)="onOverlayClick()">
+        <div class="modal-box" (click)="$event.stopPropagation()">
+
+            <div class="modal-header">
+                @if (titulo) {
+                    <h2>{{ titulo }}</h2>
+                }
+            </div>
+
+            <div class="modal-content">
+                <ng-content></ng-content>
+            </div>
+        </div>
+    </div>
+}

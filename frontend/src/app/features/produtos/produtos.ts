@@ -3,11 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { ProdutoService, ProdutoResponse } from './services/produto.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from '../categorias/services/categoria.service';
+import { Modal } from '../../shared/components/modal/modal/modal';
 
 @Component({
   selector: 'app-produtos',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, Modal],
   templateUrl: './produtos.html',
   styleUrl: './produtos.css',
 })

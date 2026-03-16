@@ -8,52 +8,6 @@
 
     <hr>
 
-    @if (exibirFormulario) {
-        <h2>
-            {{ produtoEmEdicaoId === null ? 'Novo Produto' : 'Editar Produto' }}
-        </h2>
-        <form (ngSubmit)="botaoSalvar()">
-            <div>
-                <label for="nome">Nome</label>
-                <input id="nome" type="text" [(ngModel)]="nome" name="nome" required>
-            </div>
-            <div>
-                <label for="descricao">Descrição</label>
-                <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
-            </div>
-            <div>
-                <label for="categoria">Categoria</label>
-                <select name="categoriaId" [(ngModel)]="categoriaId" id="categoriaId" required>
-                    <option [ngValue]="null">Selecione uma categoria</option>
-                    
-                    @for (categoria of categorias(); track categoria.id) {
-                        <option [ngValue]="categoria.id">
-                            {{ categoria.nome }}
-                        </option>
-                    }
-                </select>
-            </div>
-            <div>
-                <label for="precoCusto">Preço Custo</label>
-                <input id="precoCusto" type="number" step="0.01" min="0" [(ngModel)]="precoCusto" name="precoCusto" required>
-            </div>
-            <div>
-                <label for="precoVenda">Preço Venda</label>
-                <input id="precoVenda" type="number" step="0.01" min="0" [(ngModel)]="precoVenda" name="precoVenda" required>
-            </div>
-            <div>
-                <label for="quantidadeEstoque">Quantidade em estoque</label>
-                <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque"  name="quantidadeEstoque" required>
-            </div>
-            <button class="btn btn-primary" type="submit">
-                {{ produtoEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}
-            </button>
-            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
-        </form>
-
-        <hr>
-    }
-
     <h2>Produtos Cadastrados</h2>
     
     @if (produtos().length === 0){
@@ -100,3 +54,53 @@
     }
 
 </section>
+
+<app-modal [aberto]="exibirFormulario" [titulo]="produtoEmEdicaoId === null ? 'Novo Produto' : 'Editar Produto'"
+    (fechar)="resetarFormulario()"
+>
+    <form (ngSubmit)="botaoSalvar()">
+        <div>
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" [(ngModel)]="nome" name="nome">
+        </div>
+
+        <div>
+            <label for="descricao">Descrição</label>
+            <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
+        </div>
+
+        <div>
+            <label for="categoria">Categoria</label>
+            <select name="categoriaId" [(ngModel)]="categoriaId" id="categoriaId" required>
+                <option [ngValue]="null">Selecione uma categoria</option>
+                            
+                @for (categoria of categorias(); track categoria.id) {
+                    <option [ngValue]="categoria.id">
+                        {{ categoria.nome }}
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label for="precoCusto">Preço Custo</label>
+            <input id="precoCusto" type="number" step="0.01" min="0" [(ngModel)]="precoCusto" name="precoCusto" required>
+        </div>
+
+        <div>
+            <label for="precoVenda">Preço Venda</label>
+            <input id="precoVenda" type="number" step="0.01" min="0" [(ngModel)]="precoVenda" name="precoVenda" required>
+        </div>
+
+        <div>
+            <label for="quantidadeEstoque">Quantidade em estoque</label>
+            <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque"  name="quantidadeEstoque" required>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" type="submit">{{ produtoEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}</button>
+
+            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
+        </div>  
+    </form>
+</app-modal>

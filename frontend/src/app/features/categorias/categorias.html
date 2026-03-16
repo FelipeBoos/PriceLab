@@ -8,29 +8,6 @@
 
     <hr />
 
-    @if (exibirFormulario) {
-        <h2>
-            {{ categoriaEmEdicaoId === null ? 'Nova Categoria' : 'Editar Categoria'}}
-        </h2>
-        <form (ngSubmit)="salvarCategoria()">
-            <div>
-                <label for="nome">Nome</label>
-                <input id="nome" type="text" [(ngModel)]="nome" name="nome">
-            </div>
-
-            <div>
-                <label for="descricao">Descrição</label>
-                <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
-            </div>
-
-            <button class="btn btn-primary" type="submit">
-                {{ categoriaEmEdicaoId === null ? 'Salvar' : 'Atualizar'}}
-            </button>
-            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
-        </form>
-        <hr>
-    }
-
     <h2>Categorias cadastradas</h2>
 
     @if (categorias().length === 0) {
@@ -67,3 +44,25 @@
     </table>
     } 
 </section>
+
+<app-modal [aberto]="exibirFormulario" [titulo]="categoriaEmEdicaoId === null ? 'Nova Categoria' : 'Editar Categoria'" 
+    (fechar)="resetarFormulario()"
+>
+    <form (ngSubmit)="salvarCategoria()">
+        <div>
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" [(ngModel)]="nome" name="nome">
+        </div>
+
+        <div>
+            <label for="descricao">Descrição</label>
+            <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" type="submit">{{ categoriaEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}</button>
+
+            <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
+        </div>
+    </form>
+</app-modal>

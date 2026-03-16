@@ -2,11 +2,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from './services/categoria.service';
+import { Modal } from '../../shared/components/modal/modal/modal';
 
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, Modal],
   templateUrl: './categorias.html',
   styleUrls: ['./categorias.css'],
 })
@@ -137,10 +138,14 @@ export class Categorias implements OnInit {
     console.log('Filtrar categoria: Ainda não implementado');
   }
 
-  resetarFormulario() {
+  fecharFormulario(): void {
     this.nome = '';
     this.descricao = '';
     this.categoriaEmEdicaoId = null;
     this.exibirFormulario = false;
+  }
+
+  resetarFormulario() {
+    this.fecharFormulario();
   }
 }
