@@ -6,6 +6,7 @@ import { Categorias } from './features/categorias/categorias';
 import { Pedidos } from './features/pedidos/pedidos';
 import { Usuarios } from './features/usuarios/usuarios';
 import { Login } from './features/login/login';
+import { EstrategiasPreco } from './features/estrategias-preco/estrategias-preco/estrategias-preco';
 
 export const routes: Routes = [
     {
@@ -31,6 +32,10 @@ export const routes: Routes = [
             {
                 path: 'home',
                 component: Home
+            },
+            {
+                path: 'estrategias-preco',
+                component: EstrategiasPreco
             },
             {
                 path: 'produtos',
