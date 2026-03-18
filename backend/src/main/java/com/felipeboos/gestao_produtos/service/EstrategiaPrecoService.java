@@ -87,11 +87,14 @@ public class EstrategiaPrecoService {
 
     private EstrategiaPreco calcularEstrategiaPreco(EstrategiaPrecoRequestDTO request, Produto produto) {
 
+        BigDecimal margemLucroFracao = converterPercentualParaFracao(request.getMargemLucro());
+        BigDecimal percentualImpostoFracao = converterPercentualParaFracao(request.getPercentualImposto());
+
         BigDecimal precoSugerido = calcularPrecoSugerido(
-                produto.getPrecoCusto(), request.getMargemLucro(), request.getPercentualImposto());
+                produto.getPrecoCusto(), margemLucroFracao, percentualImpostoFracao);
 
         BigDecimal lucroUnitario = calcularLucroUnitario(
-                produto.getPrecoCusto(), precoSugerido, request.getPercentualImposto());
+                produto.getPrecoCusto(), precoSugerido, percentualImpostoFracao);
 
         Integer demandaEstimada = calcularDemandaEstimada(
                 produto.getDemandaBase(), precoSugerido, produto.getFatorElasticidade());
@@ -172,5 +175,9 @@ public class EstrategiaPrecoService {
                 .build();
 
         return estrategiaPreco;
+    }
+
+    private BigDecimal converterPercentualParaFracao(BigDecimal percentual) {
+        return percentual.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
     }
 }
