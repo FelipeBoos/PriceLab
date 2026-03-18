@@ -74,13 +74,34 @@ export class EstrategiasPreco implements OnInit {
       percentualImposto: 0.1
     };
 
-    this.estrategiaPrecoService.simular(request).subscribe({
+    this.estrategiaPrecoService.simularEstrategiaPreco(request).subscribe({
       next: (resposta) => {
         console.log('Resultado da simulação: ', resposta);
       },
       error: (erro) => {
         console.error('Erro na simulação: ', erro);
       }
-    })
+    });
+  }
+
+  excluirEstrategiaPreco(id: number): void {
+    if (!confirm('Deseja realmente deletar essa estratégia de preço?')) {
+      return;
+    }
+
+    this.estrategiaPrecoService.deletarEstrategiaPreco(id).subscribe({
+      next: () => {
+        console.log('Estrategia de preco deletada: ', id);
+        this.carregarEstrategiasPreco();
+      },
+      error: (erro: HttpErrorResponse) => {
+        console.error('Erro ao deletar estratégia de preço: ', erro);
+
+        if (erro.status === 404) {
+          alert('Estrategia de preço não encontrado');
+          return;
+        }
+      }
+    });
   }
 }

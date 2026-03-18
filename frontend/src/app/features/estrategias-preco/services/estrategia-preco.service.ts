@@ -33,11 +33,15 @@ export class EstrategiaPrecoService {
     return this.http.get<EstrategiaPrecoResponse[]>(this.apiUrl);
   }
 
-  simular(estrategiaPreco: EstrategiaPrecoRequest): Observable<EstrategiaPrecoResponse> {
+  simularEstrategiaPreco(estrategiaPreco: EstrategiaPrecoRequest): Observable<EstrategiaPrecoResponse> {
     return this.http.post<EstrategiaPrecoResponse>(`${this.apiUrl}/simular`, estrategiaPreco);
   }
 
-  salvar(estrategiaPreco: EstrategiaPrecoRequest): Observable<EstrategiaPrecoResponse> {
+  salvarEstrategiaPreco(estrategiaPreco: EstrategiaPrecoRequest): Observable<EstrategiaPrecoResponse> {
     return this.http.post<EstrategiaPrecoResponse>(this.apiUrl, estrategiaPreco);
+  }
+
+  deletarEstrategiaPreco(id: number) {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
