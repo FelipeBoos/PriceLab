@@ -19,7 +19,6 @@
             <label for="produto">Produto</label>
             <select name="produtoId" [(ngModel)]="produtoId" id="produtoId" required>
                 <option [ngValue]="null">Selecione um produto</option>
-
                 @for (produto of produtos(); track produto.id) {
                     <option [ngValue]="produto.id">{{ produto.nome }}</option>
                 }
@@ -28,32 +27,64 @@
 
         <div>
             <label for="margemLucro">Margem de lucro</label>
-            <input
-                id="margemLucro"
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="margemLucro"
-                name="margemLucro"
-                required
-            >
+            <input id="margemLucro" type="number" step="0.01" min="0" [(ngModel)]="margemLucro" name="margemLucro" required>
         </div>
 
         <div>
             <label for="percentualImposto">Percentual de imposto</label>
-            <input
-                id="percentualImposto"
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="percentualImposto"
-                name="percentualImposto"
-                required
-            >
+            <input id="percentualImposto" type="number" step="0.01" min="0" [(ngModel)]="percentualImposto" name="percentualImposto" required>
         </div>
 
         @if (resultadoSimulacao; as resultado) {
             <section class="resultado-simulacao">
+
+                <div class="resultado-titulo">
+                    <hr>
+                    <p>Resultado da simulação:</p>
+                </div>
+
+                <div class="card card-dados-produto">
+                    <div class="card-header azul">
+                        Dados do produto
+                    </div>
+
+                    <div class="resultado-linhas">
+                        <div class="linha linha-2-colunas">
+                            <div class="bloco-info">
+                                <span>Nome</span>
+                                <strong>{{ resultado.produtoNome }}</strong>
+                            </div>
+
+                            <div class="bloco-info">
+                                <span>Categoria</span>
+                                <strong>* Fazer *</strong>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-2-colunas">
+                            <div class="bloco-info">
+                                <span>Preço unidade</span>
+                                <strong>R$ * fazer *</strong>
+                            </div>
+
+                            <div class="bloco-info">
+                                <span>Demanda base</span>
+                                <strong>* fazer *</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resultado-info">
+                    <p>
+                        Margem de lucro: {{ margemLucro }}% - percentual de imposto: {{ percentualImposto }}%
+                    </p>
+
+                    <p>
+                        Com base nos dados informados, gerei a seguinte estratégia de preço:
+                    </p>
+                </div>
+
                 <div class="card card-resultado">
                     <div class="card-header verde">
                         Estratégia de preço - {{ resultado.produtoNome }}
@@ -102,6 +133,7 @@
                         </div>
                     </div>
                 </div>
+
             </section>
         }
 
@@ -114,5 +146,6 @@
                 Cancelar
             </button>
         </div>
+
     </form>
 </app-modal>

@@ -69,22 +69,23 @@ textarea:focus {
 
 .resultado-simulacao {
     margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-/*
-.card {
-    background: #ffffff;
-    border: 3px solid #11cb56;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(8, 8, 8, 0.06);
-}
-    */
 
 .card {
-    border: 2px solid #22c55e;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 8px 20px rgba(8, 8, 8, 0.06);
+}
+
+.card-resultado {
+    border: 2px solid #22c55e;
+}
+
+.card-dados-produto {
+    border: 1px solid #3b82f6;
 }
 
 .card-header {
@@ -100,12 +101,16 @@ textarea:focus {
     background: linear-gradient(135deg, #15b34f, #16a249);
 }
 
+.card-header.azul {
+    background: linear-gradient(135deg, #2563eb, #1457e7);
+}
+
 .resultado-linhas {
     display: flex;
     flex-direction: column;
-    gap: 8px;                  /* linhas horizontais mais finas */
-    padding: 8px;              /* cria linhas laterais e linha abaixo do header */
-    background: #d4d5d5;       /* cor das linhas */
+    gap: 8px;
+    padding: 8px;
+    background: #d4d5d5;
 }
 
 .linha {
@@ -117,8 +122,7 @@ textarea:focus {
 .linha-2-colunas {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;                  /* linha vertical central fina */
-    background: transparent;
+    gap: 8px;
 }
 
 .bloco-info {
@@ -128,8 +132,32 @@ textarea:focus {
     padding: 20px 22px;
     background: #ffffff;
     border-radius: 8px;
-
     border: 1px solid #97999b;
+}
+
+.card-dados-produto .resultado-linhas {
+    gap: 4px;
+    padding: 6px;
+    background: #e6e9ee;
+}
+
+.card-dados-produto .linha-2-colunas {
+    gap: 4px;
+}
+
+.card-dados-produto .bloco-info {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #c7d2fe;
+}
+
+.card-dados-produto .bloco-info span {
+    font-size: 10px;
+}
+
+.card-dados-produto .bloco-info strong {
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .bloco-info span {
@@ -154,10 +182,8 @@ textarea:focus {
 }
 
 .linha-lucro-total {
-    border: 2px solid #10d35b;
+    border: none;
     background: transparent;
-    border-radius: 10px;
-    overflow: hidden;
 }
 
 .card-lucro-total {
@@ -182,6 +208,11 @@ textarea:focus {
     font-weight: 800;
     color: #15803d;
     line-height: 1.1;
+}
+
+.card-dados-produto .card-header {
+    padding: 14px 16px;
+    font-size: 13px;
 }
 
 @media (max-width: 640px) {
