@@ -2,8 +2,11 @@ package com.felipeboos.gestao_produtos.service;
 
 import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoRequestDTO;
 import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoResponseDTO;
+import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.entity.EstrategiaPreco;
 import com.felipeboos.gestao_produtos.entity.Produto;
+import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
+import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.EstrategiaPrecoRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +39,7 @@ public class EstrategiaPrecoServiceTest {
     private EstrategiaPrecoService service;
 
     private Produto produto;
+    private Categoria categoria;
     private EstrategiaPrecoRequestDTO requestDTO;
     private EstrategiaPreco estrategiaPreco;
 
@@ -46,9 +50,16 @@ public class EstrategiaPrecoServiceTest {
 
     @BeforeEach
     void setup() {
+        categoria = Categoria.builder()
+                .id(1L)
+                .nome("Eletrônicos")
+                .descricao("Categoria teste")
+                .build();
+
         produto = Produto.builder()
                 .id(1L)
                 .nome("Produto teste")
+                .categoria(categoria)
                 .precoCusto(BigDecimal.valueOf(450))
                 .demandaBase(100)
                 .fatorElasticidade(BigDecimal.valueOf(0.05))
@@ -100,10 +111,10 @@ public class EstrategiaPrecoServiceTest {
         when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
 
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
                 () -> service.simularPreco(requestDTO));
 
-        assertEquals("Produto nao encontrado", exception.getMessage());
+        assertEquals("Produto nao encontrado para o id informado", exception.getMessage());
         verify(produtoRepository, times(1)).findById(1L);
         verify(repository, never()).saveAndFlush(any(EstrategiaPreco.class));
     }
@@ -134,7 +145,7 @@ public class EstrategiaPrecoServiceTest {
         when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
         when(repository.saveAndFlush(any(EstrategiaPreco.class))).thenReturn(estrategiaPreco);
 
-        EstrategiaPrecoResponseDTO responseDTO = service.criarEstrategiaPreco(requestDTO);
+        service.criarEstrategiaPreco(requestDTO);
 
         ArgumentCaptor<EstrategiaPreco> estrategiaCaptor = ArgumentCaptor.forClass(EstrategiaPreco.class);
 
@@ -159,10 +170,10 @@ public class EstrategiaPrecoServiceTest {
     void t5_deveLancarExcecaoAoCriarEstrategiaComProdutoInexistente() {
         when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
                 () -> service.criarEstrategiaPreco(requestDTO));
 
-        assertEquals("Produto nao encontrado", exception.getMessage());
+        assertEquals("Produto nao encontrado para o id informado", exception.getMessage());
         verify(produtoRepository, times(1)).findById(1L);
         verify(repository, never()).saveAndFlush(any(EstrategiaPreco.class));
     }
@@ -174,6 +185,7 @@ public class EstrategiaPrecoServiceTest {
         Produto produto2 = Produto.builder()
                 .id(2L)
                 .nome("Produto teste 2")
+                .categoria(categoria)
                 .precoCusto(BigDecimal.valueOf(730))
                 .demandaBase(175)
                 .fatorElasticidade(BigDecimal.valueOf(0.07))
@@ -247,15 +259,88 @@ public class EstrategiaPrecoServiceTest {
 
     @Test
     @DisplayName("T9 - EstrategiaPrecoServiceTest - Deve lançar exceção ao buscar estratégia por id inexistente")
-    void t9deveLancarExcecaoAoBuscarEstrategiaPorIdInexistente() {
+    void t9_deveLancarExcecaoAoBuscarEstrategiaPorIdInexistente() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
                 () -> service.buscarEstrategiaPorId(1L));
 
-        assertEquals("Estrategia de preco nao encontrada", exception.getMessage());
+        assertEquals("Estrategia de preco nao encontrada para o id informado", exception.getMessage());
         verify(repository, times(1)).findById(1L);
     }
 
+    @Test
+    @DisplayName("T10 - EstrategiaPrecoServiceTest - Deve buscar estrategias por produto id com sucesso")
+    void t10_deveBuscarEstrategiasPorProdutoIdComSucesso() {
+        EstrategiaPreco estrategiaPreco2 = EstrategiaPreco.builder()
+                .id(2L)
+                .produto(produto)
+                .margemLucro(BigDecimal.valueOf(12))
+                .percentualImposto(BigDecimal.valueOf(8))
+                .precoSugerido(BigDecimal.valueOf(544.32))
+                .lucroUnitario(BigDecimal.valueOf(54))
+                .demandaEstimada(73)
+                .lucroTotalEstimado(BigDecimal.valueOf(3942))
+                .dataSimulacao(Instant.now())
+                .build();
 
+        when(repository.findByProduto_Id(1L)).thenReturn(List.of(estrategiaPreco, estrategiaPreco2));
+
+        List<EstrategiaPrecoResponseDTO> response = service.buscarEstrategiaPorProdutoId(1L);
+
+        assertNotNull(response);
+
+        assertEquals(1L, response.get(0).getId());
+        assertEquals(1L, response.get(0).getProdutoId());
+        assertEquals("Produto teste", response.get(0).getProdutoNome());
+        assertEquals("Eletrônicos", response.get(0).getCategoriaNome());
+        assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(6300)));
+
+        assertEquals(2L, response.get(1).getId());
+        assertEquals(1L, response.get(1).getProdutoId());
+        assertEquals("Produto teste", response.get(1).getProdutoNome());
+        assertEquals("Eletrônicos", response.get(1).getCategoriaNome());
+        assertEquals(0, response.get(1).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(3942)));
+
+        verify(repository, times(1)).findByProduto_Id(1L);
+    }
+
+    @Test
+    @DisplayName("T11 - EstrategiaPrecoServiceTest - Deve retornar lista vazia ao buscar estratégias por produto id")
+    void t11_deveRetornarListaVaziaAoBuscarEstrategiasPorProdutoId() {
+        when(repository.findByProduto_Id(1L)).thenReturn(List.of());
+
+        List<EstrategiaPrecoResponseDTO> response = service.buscarEstrategiaPorProdutoId(1L);
+
+        assertNotNull(response);
+        assertTrue(response.isEmpty());
+
+        verify(repository, times(1)).findByProduto_Id(1L);
+    }
+
+    @Test
+    @DisplayName("T12 - EstrategiaPrecoServiceTest - Deve deletar estratégia por id com sucesso")
+    void t12_deveDeletarEstrategiaPorIdComSucesso() {
+        when(repository.existsById(1L)).thenReturn(true);
+        doNothing().when(repository).deleteById(1L);
+
+        service.deletarEstrategiaPorId(1L);
+
+        verify(repository, times(1)).existsById(1L);
+        verify(repository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("T13 - EstrategiaPrecoServiceTest - Deve lançar exceção ao deletar estrategia por id inexistente")
+    void t13_deveLancarExcecaoAoDeletarEstrategiaPorIdInexistente() {
+        when(repository.existsById(1L)).thenReturn(false);
+
+        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
+                () -> service.deletarEstrategiaPorId(1L));
+
+        assertEquals("Nenhuma estrategia de preco encontrada para o id informado", exception.getMessage());
+
+        verify(repository, times(1)).existsById(1L);
+        verify(repository, never()).deleteById(anyLong());
+    }
 }

@@ -4,6 +4,7 @@ import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoRequest
 import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoResponseDTO;
 import com.felipeboos.gestao_produtos.entity.EstrategiaPreco;
 import com.felipeboos.gestao_produtos.entity.Produto;
+import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.EstrategiaPrecoRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class EstrategiaPrecoService {
     @Transactional(readOnly = true)
     public EstrategiaPrecoResponseDTO simularPreco(EstrategiaPrecoRequestDTO request) {
         Produto produto = produtoRepository.findById(request.getProdutoId())
-                .orElseThrow(() -> new RuntimeException("Produto nao encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado"));
 
         EstrategiaPreco estrategia = calcularEstrategiaPreco(request, produto);
 
@@ -45,7 +46,7 @@ public class EstrategiaPrecoService {
     @Transactional
     public EstrategiaPrecoResponseDTO criarEstrategiaPreco(EstrategiaPrecoRequestDTO request) {
         Produto produto = produtoRepository.findById(request.getProdutoId())
-                .orElseThrow(() -> new RuntimeException("Produto nao encontrado"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado"));
 
         EstrategiaPreco estrategia = calcularEstrategiaPreco(request, produto);
         EstrategiaPreco estrategiaSalva = estrategiaPrecoRepository.saveAndFlush(estrategia);
@@ -68,7 +69,7 @@ public class EstrategiaPrecoService {
     @Transactional(readOnly = true)
     public EstrategiaPrecoResponseDTO buscarEstrategiaPorId(Long id) {
         EstrategiaPreco estrategiaPreco = estrategiaPrecoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estrategia de preco nao encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Estrategia de preco nao encontrada para o id informado"));
 
         return toResponseDTO(estrategiaPreco);
     }
@@ -87,6 +88,10 @@ public class EstrategiaPrecoService {
 
     @Transactional
     public void deletarEstrategiaPorId(Long id) {
+        if (!estrategiaPrecoRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Nenhuma estrategia de preco encontrada para o id informado");
+        }
+
         estrategiaPrecoRepository.deleteById(id);
     }
 

@@ -41,7 +41,7 @@ public class CategoriaService {
     public CategoriaResponseDTO buscarCategoriaPorId(Long id) {
 
         Categoria categoria = repository.findById(id).orElseThrow(
-                () -> new RecursoNaoEncontradoException("Nenhuma categoria informada para o id informado")
+                () -> new RecursoNaoEncontradoException("Nenhuma categoria encontrada para o id informado")
         );
 
         return CategoriaResponseDTO.fromEntity(categoria);

@@ -107,7 +107,7 @@ class CategoriaServiceTest {
         RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
                 () -> categoriaService.buscarCategoriaPorId(1L));
 
-        assertEquals("Nenhuma categoria informada para o id informado", exception.getMessage());
+        assertEquals("Nenhuma categoria encontrada para o id informado", exception.getMessage());
         verify(repository, times(1)).findById(1L);
     }
 
