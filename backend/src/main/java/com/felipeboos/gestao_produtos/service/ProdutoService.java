@@ -5,6 +5,8 @@ import com.felipeboos.gestao_produtos.dto.produto.ProdutoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoUpdateDTO;
 import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.entity.Produto;
+import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
+import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,12 @@ public class ProdutoService {
         this.catRepository = catRepository;
     }
 
+    @Transactional
     public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO dto) {
+
+        if (repository.existsByNome(dto.getNome())) {
+            throw new RecursoDuplicadoException("Já existe um produto cadastrado com esse nome");
+        }
 
         Produto produto = toEntity(dto);
 
@@ -35,7 +42,7 @@ public class ProdutoService {
 
     public ProdutoResponseDTO buscarProdutoPorId(Long id) {
         Produto produto = repository.findById(id).orElseThrow(
-                () -> new RuntimeException("Id não encontrado")
+                () -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado")
         );
 
         return ProdutoResponseDTO.fromEntity(produto);
@@ -44,7 +51,7 @@ public class ProdutoService {
     public List<ProdutoResponseDTO> buscarProdutoPorNome(String nome) {
 
         Produto produto =  repository.findByNome(nome).orElseThrow(
-                () -> new RuntimeException("Nome não encontrado")
+                () -> new RecursoNaoEncontradoException("Produto nao encontrado para o nome informado")
         );
 
         return List.of(ProdutoResponseDTO.fromEntity(produto));
@@ -64,24 +71,24 @@ public class ProdutoService {
     }
 
     public void deletarProdutoPorId(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Produto nao encontrado para o id informado");
+        }
+
         repository.deleteById(id);
     }
 
     public void atualizarProdutoPorId(Long id, ProdutoUpdateDTO produtoPatch) {
 
         Produto produtoEntity = repository.findById(id).orElseThrow(
-                () -> new RuntimeException("Nenhum produto encontrado para o Id informado")
+                () -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado")
         );
 
-        aplicarAlteracoes(produtoEntity, produtoPatch);
-
-        repository.saveAndFlush(produtoEntity);
-    }
-
-    public void atualizarProdutoPorNome(String nome, ProdutoUpdateDTO produtoPatch) {
-        Produto produtoEntity = repository.findByNome(nome).orElseThrow(
-                () -> new RuntimeException("Nenhum produto encontrado para o nome informado")
-        );
+        if (produtoPatch.getNome() != null
+                && !produtoPatch.getNome().equals(produtoEntity.getNome())
+                && repository.existsByNome(produtoPatch.getNome())) {
+            throw new RecursoDuplicadoException("Já existe um produto cadastrado com esse nome");
+        }
 
         aplicarAlteracoes(produtoEntity, produtoPatch);
 
@@ -119,7 +126,7 @@ public class ProdutoService {
 
     private void setCategoria(Produto produtoEntity, Long categoriaId) {
         Categoria categoria = catRepository.findById(categoriaId).orElseThrow(
-                () -> new RuntimeException("Categoria nao encontrada")
+                () -> new RecursoNaoEncontradoException("Categoria nao encontrada para o id informado")
         );
 
         produtoEntity.setCategoria(categoria);
