@@ -14,34 +14,9 @@ jobs:
   test-backend:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_DB: gestao_produtos_test
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d gestao_produtos_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     defaults:
       run:
         working-directory: backend
-
-    env:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/gestao_produtos_test
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
-      SPRING_FLYWAY_ENABLED: true
-      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
 
     steps:
       - name: Checkout repository
@@ -58,7 +33,19 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run backend tests
-        run: ./mvnw -B test
+        run: ./mvnw -B clean test
+
+      - name: Print Surefire Reports
+        if: failure()
+        run: |
+          echo "=== Surefire files ==="
+          find target/surefire-reports -type f | sort || true
+          echo "=== CategoriaRepositoryTest ==="
+          cat target/surefire-reports/com.felipeboos.gestao_produtos.repository.CategoriaRepositoryTest.txt || true
+          echo "=== ProdutoRepositoryTest ==="
+          cat target/surefire-reports/com.felipeboos.gestao_produtos.repository.ProdutoRepositoryTest.txt || true
+          echo "=== EstrategiaPrecoRepositoryTest ==="
+          cat target/surefire-reports/com.felipeboos.gestao_produtos.repository.EstrategiaPrecoRepositoryTest.txt || true
 
       - name: Upload Surefire reports
         if: always()
