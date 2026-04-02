@@ -1,0 +1,154 @@
+.dashboard {
+  width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard__wrapper {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: 321px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.painel-entrada {
+  background-color: #30C5DB;
+  min-height: 754px;
+  box-sizing: border-box;
+}
+
+.painel-resultado {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.painel-resultado__topo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.37fr) minmax(320px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.card-resultado {
+  background-color: #7BEF3C;
+  min-height: 365px;
+  box-sizing: border-box;
+}
+
+.painel-resultado__lateral {
+  display: grid;
+  grid-template-rows: 182px 183px;
+  gap: 16px;
+}
+
+.card-contexto {
+  background-color: #D7AE0A;
+  min-height: 182px;
+  box-sizing: border-box;
+}
+
+.card-analise {
+  background-color: #F1FB33;
+  min-height: 183px;
+  box-sizing: border-box;
+}
+
+.painel-resultado__base {
+  background-color: #4356FA;
+  min-height: 389px;
+  box-sizing: border-box;
+}
+
+.painel-entrada p,
+.card-resultado p,
+.card-contexto p,
+.card-analise p,
+.painel-resultado__base p {
+  margin: 0;
+}
+
+/* notebook / desktop menor */
+@media (max-width: 1200px) {
+  .dashboard__wrapper {
+    padding: 12px;
+  }
+
+  .dashboard__grid {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .painel-resultado {
+    gap: 12px;
+  }
+
+  .painel-resultado__topo {
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
+    gap: 12px;
+  }
+
+  .painel-resultado__lateral {
+    gap: 12px;
+  }
+
+  .painel-entrada {
+    min-height: 700px;
+  }
+
+  .card-resultado {
+    min-height: 340px;
+  }
+
+  .painel-resultado__base {
+    min-height: 360px;
+  }
+}
+
+/* tablet */
+@media (max-width: 900px) {
+  .dashboard__wrapper {
+    padding: 12px;
+  }
+
+  .dashboard__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .painel-resultado {
+    gap: 12px;
+  }
+
+  .painel-resultado__topo {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .painel-resultado__lateral {
+    grid-template-rows: auto;
+    gap: 12px;
+  }
+
+  .painel-entrada {
+    min-height: 320px;
+  }
+
+  .card-contexto,
+  .card-analise {
+    min-height: 180px;
+  }
+
+  .painel-resultado__base {
+    min-height: 280px;
+  }
+}
