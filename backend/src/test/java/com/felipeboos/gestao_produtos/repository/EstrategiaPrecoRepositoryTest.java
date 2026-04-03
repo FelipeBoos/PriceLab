@@ -2,6 +2,7 @@ package com.felipeboos.gestao_produtos.repository;
 
 import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.entity.EstrategiaPreco;
+import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.entity.Produto;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -127,11 +128,20 @@ class EstrategiaPrecoRepositoryTest {
         produto.setNome(nome);
         produto.setDescricao("Descricao teste");
         produto.setCategoria(categoria);
-        produto.setPrecoCusto(BigDecimal.valueOf(100.00));
+
+        BigDecimal precoCusto = BigDecimal.valueOf(100.00);
+
+        produto.setPrecoCusto(precoCusto);
+
+        produto.setMoeda(Moeda.BRL);
+        produto.setCotacaoMoeda(BigDecimal.ONE);
+        produto.setPrecoCustoEmReais(precoCusto);
+
         produto.setPrecoVenda(BigDecimal.valueOf(150.00));
         produto.setQuantidadeEstoque(10);
         produto.setDemandaBase(50);
         produto.setFatorElasticidade(BigDecimal.valueOf(0.10));
+
         return produtoRepository.save(produto);
     }
 

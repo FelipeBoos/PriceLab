@@ -1,8 +1,8 @@
 package com.felipeboos.gestao_produtos.repository;
 
 import com.felipeboos.gestao_produtos.entity.Categoria;
+import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.entity.Produto;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Disabled("Desabilitado temporariamente no CI")
 class ProdutoRepositoryTest {
 
     @Autowired
@@ -135,11 +134,16 @@ class ProdutoRepositoryTest {
     }
 
     private Produto criarProduto(String nome, Categoria categoria) {
+        BigDecimal precoCusto = BigDecimal.valueOf(100.00);
+
         Produto produto = new Produto();
         produto.setNome(nome);
         produto.setDescricao("Descricao teste");
         produto.setCategoria(categoria);
-        produto.setPrecoCusto(BigDecimal.valueOf(100.00));
+        produto.setPrecoCusto(precoCusto);
+        produto.setMoeda(Moeda.BRL);
+        produto.setCotacaoMoeda(BigDecimal.ONE);
+        produto.setPrecoCustoEmReais(precoCusto);
         produto.setPrecoVenda(BigDecimal.valueOf(150.00));
         produto.setQuantidadeEstoque(10);
         produto.setDemandaBase(50);

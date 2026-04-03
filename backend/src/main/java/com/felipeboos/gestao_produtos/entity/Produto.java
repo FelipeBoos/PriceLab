@@ -25,10 +25,20 @@ public class Produto extends EntidadeBase {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    @Column(name = "preco_custo")
+    @Column(name = "preco_custo", precision = 19, scale = 4, nullable = false)
     private BigDecimal precoCusto;
 
-    @Column(name = "preco_venda")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "moeda", nullable = false, length = 3)
+    private Moeda moeda;
+
+    @Column(name = "cotacao_moeda", precision = 19, scale = 6, nullable = false)
+    private BigDecimal cotacaoMoeda;
+
+    @Column(name = "preco_custo_em_reais", precision = 19, scale = 4, nullable = false)
+    private BigDecimal precoCustoEmReais;
+
+    @Column(name = "preco_venda", precision = 19, scale = 4)
     private BigDecimal precoVenda;
 
     @Column(name = "quantidade_estoque")
