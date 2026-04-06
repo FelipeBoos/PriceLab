@@ -4,7 +4,8 @@ import {
   AfterViewInit,
   signal,
   ViewChild,
-  ElementRef
+  ElementRef,
+  ChangeDetectorRef
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -26,9 +27,10 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
 
 @Component({
   selector: 'app-simular-estrategia-preco',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './simular-estrategia-preco.html',
-  styleUrl: './simular-estrategia-preco.css',
+  styleUrls: ['./simular-estrategia-preco.css'],
 })
 export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   @ViewChild('graficoRosca') graficoRoscaRef?: ElementRef<HTMLCanvasElement>;
@@ -46,7 +48,8 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   constructor(
     private estrategiaPrecoService: EstrategiaPrecoService,
     private produtoService: ProdutoService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -87,7 +90,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
     this.estrategiaPrecoService.simularEstrategiaPreco(estrategiaPrecoRequest).subscribe({
       next: (resposta) => {
         this.resultadoSimulacao = { ...resposta };
-        console.log('Resultado da simulação:', resposta);
+        this.cdr.markForCheck();
 
         setTimeout(() => {
           this.criarOuAtualizarGrafico();
@@ -106,16 +109,18 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
     const precoSugerido = this.resultadoSimulacao.precoSugerido;
     const lucroUnitario = this.resultadoSimulacao.lucroUnitario;
+    const percentualImposto = this.percentualImposto ?? 0;
 
-    if (!precoSugerido || precoSugerido <= 0 || this.percentualImposto === null) {
+    if (!precoSugerido || precoSugerido <= 0) {
       return;
     }
-    const impostoUnitario = precoSugerido * (this.percentualImposto / 100);
+
+    const impostoUnitario = precoSugerido * (percentualImposto / 100);
     const custoUnitario = precoSugerido - lucroUnitario - impostoUnitario;
 
     const percentualCusto = this.calcularPercentual(custoUnitario, precoSugerido);
     const percentualLucro = this.calcularPercentual(lucroUnitario, precoSugerido);
-    const percentualImposto = this.calcularPercentual(impostoUnitario, precoSugerido);
+    const percentualImpostoGrafico = this.calcularPercentual(impostoUnitario, precoSugerido);
 
     if (this.grafico) {
       this.grafico.destroy();
@@ -126,30 +131,24 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
     this.grafico = new Chart(canvas, {
       type: 'doughnut',
       data: {
-        labels: ['Custo', 'Lucro', 'Imposto'],
+        labels: ['Custo base', 'Margem', 'Impostos'],
         datasets: [
           {
-            data: [percentualCusto, percentualLucro, percentualImposto],
-            backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b'],
+            data: [percentualCusto, percentualLucro, percentualImpostoGrafico],
+            backgroundColor: ['#2f6fe4', '#5b5ce6', '#f4a11a'],
             borderColor: '#ffffff',
             borderWidth: 2,
-            hoverOffset: 6
+            hoverOffset: 4
           }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '65%',
+        cutout: '68%',
         plugins: {
           legend: {
-            position: 'bottom',
-            labels: {
-              font: {
-                size: 14
-              },
-              padding: 18
-            }
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -173,7 +172,32 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   }
 
   salvarEstrategia(): void {
-    console.log('Botão salvar');
+    if (!this.resultadoSimulacao) {
+      alert('Faça a simulação antes de salvar a estratégia.');
+      return;
+    }
+
+    if (this.temAvisosCriticos()) {
+      alert('Não é possível salvar uma estratégia com demanda zerada. Ajuste os parâmetros.');
+      return;
+    }
+
+    const estrategiaPrecoRequest = {
+      produtoId: this.resultadoSimulacao.produtoId,
+      margemLucro: this.resultadoSimulacao.margemLucro,
+      percentualImposto: this.resultadoSimulacao.percentualImposto,
+    };
+
+    this.estrategiaPrecoService.salvarEstrategiaPreco(estrategiaPrecoRequest).subscribe({
+      next: (resposta) => {
+        this.resultadoSimulacao = { ...resposta };
+        alert('Estratégia salva com sucesso.');
+      },
+      error: (erro: HttpErrorResponse) => {
+        console.error('Erro ao salvar estratégia:', erro);
+        alert('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
+      }
+    });
   }
 
   resetarFormulario(): void {
@@ -192,8 +216,118 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
     this.router.navigate(['app/estrategias-preco']);
   }
 
+  removerAviso(index: number): void {
+    if (!this.resultadoSimulacao?.avisos) {
+      return;
+    }
+
+    this.resultadoSimulacao.avisos.splice(index, 1);
+  }
+
+  removerAvisosCriticos(): void {
+    if (!this.resultadoSimulacao?.avisos) {
+      return;
+    }
+
+    this.resultadoSimulacao.avisos = this.resultadoSimulacao.avisos.filter(
+      (aviso) => !this.ehAvisoCritico(aviso)
+    );
+  }
+
+  removerAvisosNaoCriticos(): void {
+    if (!this.resultadoSimulacao?.avisos) {
+      return;
+    }
+
+    this.resultadoSimulacao.avisos = this.resultadoSimulacao.avisos.filter(
+      (aviso) => this.ehAvisoCritico(aviso)
+    );
+  }
+
   cancelar(): void {
-    this.resetarFormulario();
     this.router.navigate(['app/estrategias-preco']);
+  }
+
+  temAvisosEstrategia(): boolean {
+    return (this.resultadoSimulacao?.avisos?.length ?? 0) > 0;
+  }
+
+  temAvisosCriticos(): boolean {
+    return this.avisosCriticos.length > 0;
+  }
+
+  get avisosCriticos(): string[] {
+    return this.resultadoSimulacao?.avisos?.filter((aviso) => this.ehAvisoCritico(aviso)) ?? [];
+  }
+
+  get avisosNaoCriticos(): string[] {
+    return this.resultadoSimulacao?.avisos?.filter((aviso) => !this.ehAvisoCritico(aviso)) ?? [];
+  }
+
+  private ehAvisoCritico(aviso: string): boolean {
+    const texto = aviso
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
+
+    return (
+      texto.includes('demanda estimada zerada') ||
+      texto.includes('lucro total zerado') ||
+      (texto.includes('demanda') && texto.includes('critica'))
+    );
+  }
+
+  get percentualCustoBase(): number {
+    const margem = this.margemLucro ?? 0;
+    const imposto = this.percentualImposto ?? 0;
+    const valor = 100 - margem - imposto;
+
+    return valor < 0 ? 0 : Number(valor.toFixed(2));
+  }
+
+  get margemLucroValor(): number {
+    return this.margemLucro ?? 0;
+  }
+
+  get percentualImpostoValor(): number {
+    return this.percentualImposto ?? 0;
+  }
+
+  private classificarMargem(margem: number): 'critica' | 'moderada' | 'saudavel' {
+    if (margem < 10) {
+      return 'critica';
+    }
+    if (margem < 25) {
+      return 'moderada';
+    }
+    return 'saudavel';
+  }
+
+  get obterTextoMargem(): string {
+    const margem = this.margemLucro ?? 0;
+    const classificacao = this.classificarMargem(margem);
+
+    switch (classificacao) {
+      case 'critica':
+        return `${margem}% é uma margem crítica - pouco lucro`;
+      case 'moderada':
+        return `${margem}% é uma margem moderada - viável`;
+      case 'saudavel':
+        return `${margem}% é uma margem saudável - boa cobertura`;
+    }
+  }
+
+  get posicaoIndicadorMargem(): number {
+    const margem = this.margemLucro ?? 0;
+
+    if (margem < 0) {
+      return 0;
+    }
+
+    if (margem > 50) {
+      return 50;
+    }
+
+    return margem;
   }
 }

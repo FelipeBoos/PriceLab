@@ -2,12 +2,47 @@
     <h1>Estratégias de Preço</h1>
 
     <div class="actions">
-        <button class="btn btn-primary" type="button" (click)="botaoSimular()">+ Simular</button>
-        <button class="btn btn-secondary" type="button" (click)="botaoFiltrar()">Filtrar</button>
+        <button class="btn btn-primary btn-list" type="button" (click)="botaoSimular()">+ Simular</button>
+        <button class="btn btn-secondary btn-list" type="button" (click)="botaoFiltrar()">Filtrar</button>
     </div>
 
     <hr>
 
     <h2>Estratégias de Preço cadastradas</h2>
-    <p>Nenhuma Estratégia de Preço cadastrada.</p>
+
+    @if (estrategiasPreco().length === 0) {
+        <p>Nenhuma Estratégia de Preço cadastrada.</p>
+    }
+
+    @if (estrategiasPreco().length > 0) {
+        <div class="cards-grid">
+            @for (estrategia of estrategiasPreco(); track estrategia.id) {
+                <article class="card card-estrategia">
+                    <div class="card-estrategia-header">
+                        <div>
+                            <span class="card-estrategia-title">{{ estrategia.produtoNome }}</span>
+                            <span class="card-estrategia-price">{{ estrategia.precoSugerido | currency:'BRL' }}</span>
+                        </div>
+                        <button type="button" class="card-estrategia-expand" aria-label="Visualizar estratégia">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M8 5l8 7-8 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="card-estrategia-body">
+                        <div class="card-estrategia-metric">
+                            <span class="metric-value">{{ estrategia.margemLucro }}%</span>
+                            <span class="metric-label">Margem de lucro</span>
+                        </div>
+
+                        <div class="card-estrategia-metric">
+                            <span class="metric-value">{{ estrategia.percentualImposto }}%</span>
+                            <span class="metric-label">Imposto</span>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
 </section>

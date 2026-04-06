@@ -15,7 +15,7 @@
 .dashboard__grid {
   display: grid;
   grid-template-columns: 321px minmax(0, 1fr);
-  gap: 16px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -28,14 +28,14 @@
 .painel-resultado {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 
 .painel-resultado__topo {
   display: grid;
   grid-template-columns: minmax(0, 1.37fr) minmax(320px, 1fr);
-  gap: 16px;
+  gap: 20px;
   align-items: start;
 }
 
@@ -48,7 +48,7 @@
 .painel-resultado__lateral {
   display: grid;
   grid-template-rows: 182px 183px;
-  gap: 16px;
+  gap: 20px;
 }
 
 .card-contexto {
@@ -85,20 +85,20 @@
 
   .dashboard__grid {
     grid-template-columns: 280px minmax(0, 1fr);
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado {
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado__topo {
     grid-template-columns: minmax(0, 1.3fr) minmax(280px, 1fr);
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado__lateral {
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-entrada {
@@ -122,21 +122,21 @@
 
   .dashboard__grid {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado {
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado__topo {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-resultado__lateral {
     grid-template-rows: auto;
-    gap: 12px;
+    gap: 20px;
   }
 
   .painel-entrada {

@@ -8,10 +8,7 @@ import { Usuarios } from './features/usuarios/usuarios';
 import { Login } from './features/login/login';
 import { EstrategiasPreco } from './features/estrategias-preco/estrategias-preco';
 
-import { LayoutPrincipal } from './layouts/layout-principal/layout-principal';
-
 import { SimularEstrategiaPreco } from './features/estrategias-preco/simular-estrategia-preco/simular-estrategia-preco';
-import { SimularEstrategiaPreco2 } from './features/teste/simular-estrategia-preco2/simular-estrategia-preco2';
 
 export const routes: Routes = [
     {
@@ -65,15 +62,4 @@ export const routes: Routes = [
             }
         ]
     },
-
-    {
-        path: 'teste',
-        component: LayoutPrincipal,
-        children: [
-            {
-                path: 'estrategia-preco',
-                component: SimularEstrategiaPreco2
-            }
-        ]
-    }
 ];

@@ -25,7 +25,9 @@ export interface EstrategiaPrecoResponse {
   impostoUnitario: number;  
   impostoTotal: number;
   lucroUnitario: number;
-  lucroTotalEstimado: number; 
+  lucroTotalEstimado: number;
+  
+  avisos?: string[];
 }
 
 @Injectable({

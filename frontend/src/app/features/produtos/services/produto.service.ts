@@ -2,13 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { CategoriaResponse } from '../../categorias/services/categoria.service';
 
+export enum MoedaEnum {
+  BRL = 'BRL',
+  USD = 'USD',
+  EUR = 'EUR'
+}
+
 export interface ProdutoRequest {
   nome: string,
   descricao: string,
   categoriaId: number,
   precoCusto: number,
+  moeda?: MoedaEnum,
   precoVenda: number,
-  quantidadeEstoque: number
+  quantidadeEstoque: number,
+  demandaBase?: number,
+  fatorElasticidade?: number
 }
 
 export interface ProdutoResponse {
@@ -18,8 +27,11 @@ export interface ProdutoResponse {
   categoriaNome: string,
   categoriaId: number,
   precoCusto: number;
+  moeda?: MoedaEnum;
   precoVenda: number;
   quantidadeEstoque: number;
+  demandaBase?: number;
+  fatorElasticidade?: number;
   categoria: CategoriaResponse;
 }
 

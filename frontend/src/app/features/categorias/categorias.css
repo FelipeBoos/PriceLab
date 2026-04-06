@@ -43,3 +43,10 @@ textarea:focus {
     gap: 12px;
     margin-top: 8px;
 }
+
+.actions-inline {
+    display: inline-flex;
+    justify-content: flex-end;
+    gap: 16px;
+    width: 100%;
+}

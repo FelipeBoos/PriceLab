@@ -2,8 +2,8 @@
     <h1>Produtos</h1>
 
     <div class="actions">
-        <button class="btn btn-primary" type="button" (click)="incluirProduto()">+ Novo</button>
-        <button class="btn btn-secondary" type="button" (click)="filtrarProduto()">Filtrar</button>
+        <button class="btn btn-primary btn-list" type="button" (click)="incluirProduto()">+ Novo</button>
+        <button class="btn btn-secondary btn-list" type="button" (click)="filtrarProduto()">Filtrar</button>
     </div>
 
     <hr>
@@ -15,6 +15,7 @@
     }
 
     @if (produtos().length > 0) {
+    <div class="table-container produtos">
         <table class="data-table">
             <thead>
                 <tr>
@@ -25,6 +26,8 @@
                     <th>Preço Custo</th>
                     <th>Preço Venda</th>
                     <th>Quantidade em estoque</th>
+                    <th>Demanda Base</th>
+                    <th>Fator Elasticidade</th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -41,16 +44,36 @@
                         <td>{{ produto.precoCusto }}</td>
                         <td>{{ produto.precoVenda }}</td>
                         <td>{{ produto.quantidadeEstoque }}</td>
+                        <td>{{ produto.demandaBase }}</td>
+                        <td>{{ produto.fatorElasticidade }}</td>
                         <td>
-                            <button class="btn btn-primary" type="button" (click)="editarProduto(produto.id)">Editar</button>
+                            <button class="btn btn-secondary btn-circle btn-action" type="button" title="Editar" aria-label="Editar" (click)="editarProduto(produto.id)">
+                                <span class="btn-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                                    </svg>
+                                </span>
+                            </button>
                         </td>
                         <td>
-                            <button class="btn btn-delete" type="button" (click)="deletarProduto(produto.id)">Deletar</button>
+                            <button class="btn btn-secondary btn-circle btn-action" type="button" title="Deletar" aria-label="Deletar" (click)="deletarProduto(produto.id)">
+                                <span class="btn-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 6h18" />
+                                        <path d="M8 6V4h8v2" />
+                                        <path d="M19 6l-1 14H6L5 6" />
+                                        <path d="M10 11v6" />
+                                        <path d="M14 11v6" />
+                                    </svg>
+                                </span>
+                            </button>
                         </td>
                     </tr>
                 }    
             </tbody>
         </table>
+    </div>
     }
 
 </section>
@@ -88,6 +111,15 @@
         </div>
 
         <div>
+            <label for="moeda">Moeda</label>
+            <select id="moeda" [(ngModel)]="moeda" name="moeda" required>
+                <option value="BRL">BRL (Real Brasileiro)</option>
+                <option value="USD">USD (Dólar Americano)</option>
+                <option value="EUR">EUR (Euro)</option>
+            </select>
+        </div>
+
+        <div>
             <label for="precoVenda">Preço Venda</label>
             <input id="precoVenda" type="number" step="0.01" min="0" [(ngModel)]="precoVenda" name="precoVenda" required>
         </div>
@@ -95,6 +127,16 @@
         <div>
             <label for="quantidadeEstoque">Quantidade em estoque</label>
             <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque"  name="quantidadeEstoque" required>
+        </div>
+
+        <div>
+            <label for="demandaBase">Demanda Base</label>
+            <input id="demandaBase" type="number" step="1" min="0" [(ngModel)]="demandaBase" name="demandaBase" required>
+        </div>
+
+        <div>
+            <label for="fatorElasticidade">Fator de Elasticidade</label>
+            <input id="fatorElasticidade" type="number" step="0.01" min="0" [(ngModel)]="fatorElasticidade" name="fatorElasticidade" required>
         </div>
 
         <div class="modal-actions">

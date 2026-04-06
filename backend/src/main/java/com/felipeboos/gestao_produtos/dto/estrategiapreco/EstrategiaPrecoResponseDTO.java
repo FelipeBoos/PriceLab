@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class EstrategiaPrecoResponseDTO {
@@ -28,6 +30,8 @@ public class EstrategiaPrecoResponseDTO {
     private BigDecimal lucroTotalEstimado;
 
     private Instant dataSimulacao;
+    
+    private List<String> avisos = new ArrayList<>();
 
     public static EstrategiaPrecoResponseDTO fromEntity(EstrategiaPreco estrategiaPreco){
         EstrategiaPrecoResponseDTO dto = new EstrategiaPrecoResponseDTO();

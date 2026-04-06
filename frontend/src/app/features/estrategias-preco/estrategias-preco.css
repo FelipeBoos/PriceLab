@@ -230,3 +230,98 @@ textarea:focus {
         font-size: 26px;
     }
 }
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) );
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.card-estrategia {
+    padding: 18px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.card-estrategia-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.card-estrategia-title {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.card-estrategia-price {
+    display: block;
+    font-size: 24px;
+    font-weight: 900;
+    color: #1d4ed8;
+}
+
+.card-estrategia-expand {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    background: #f8fafc;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.card-estrategia-expand:hover {
+    background-color: #eff6ff;
+    border-color: #93c5fd;
+}
+
+.card-estrategia-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.card-estrategia-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+.metric-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.metric-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+@media (max-width: 900px) {
+    .card-estrategia-body {
+        grid-template-columns: 1fr;
+    }
+}

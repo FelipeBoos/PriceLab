@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -6,9 +7,10 @@ import { EstrategiaPrecoService, EstrategiaPrecoResponse } from './services/estr
 
 @Component({
   selector: 'app-estrategias-preco',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './estrategias-preco.html',
-  styleUrl: './estrategias-preco.css',
+  styleUrls: ['./estrategias-preco.css'],
 })
 export class EstrategiasPreco implements OnInit {
   estrategiasPreco = signal<EstrategiaPrecoResponse[]>([]);

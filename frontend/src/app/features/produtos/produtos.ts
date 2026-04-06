@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ProdutoService, ProdutoResponse } from './services/produto.service';
+import { ProdutoService, ProdutoResponse, MoedaEnum } from './services/produto.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from '../categorias/services/categoria.service';
 import { Modal } from '../../shared/components/modal/modal/modal';
@@ -18,8 +18,11 @@ export class Produtos implements OnInit {
   categoriaId: number | null = null;
   categorias =  signal<CategoriaResponse[]>([]);
   precoCusto: number | null = null;
+  moeda: MoedaEnum = MoedaEnum.BRL;
   precoVenda: number | null = null;
   quantidadeEstoque: number | null = null;
+  demandaBase: number | null = null;
+  fatorElasticidade: number | null = null;
 
   produtos = signal<ProdutoResponse[]>([]);
 
@@ -51,7 +54,9 @@ export class Produtos implements OnInit {
       this.categoriaId === null ||
       this.precoCusto === null ||
       this.precoVenda === null ||
-      this.quantidadeEstoque === null 
+      this.quantidadeEstoque === null ||
+      this.demandaBase === null ||
+      this.fatorElasticidade === null
     ) {
       alert("Preencha todos os campos");
       return;
@@ -62,8 +67,11 @@ export class Produtos implements OnInit {
       descricao: this.descricao,
       categoriaId: this.categoriaId,
       precoCusto: this.precoCusto,
+      moeda: this.moeda,
       precoVenda: this.precoVenda,
-      quantidadeEstoque: this.quantidadeEstoque
+      quantidadeEstoque: this.quantidadeEstoque,
+      demandaBase: this.demandaBase,
+      fatorElasticidade: this.fatorElasticidade
     };
 
     if (this.produtoEmEdicaoId === null) {
@@ -111,8 +119,11 @@ export class Produtos implements OnInit {
     this.descricao = produto.descricao;
     this.categoriaId = produto.categoriaId;
     this.precoCusto = produto.precoCusto;
+    this.moeda = produto.moeda ?? MoedaEnum.BRL;
     this.precoVenda = produto.precoVenda;
     this.quantidadeEstoque = produto.quantidadeEstoque;
+    this.demandaBase = produto.demandaBase ?? null;
+    this.fatorElasticidade = produto.fatorElasticidade ?? null;
 
     this.exibirFormulario = true;
     this.produtoEmEdicaoId = id;
@@ -147,8 +158,11 @@ export class Produtos implements OnInit {
     this.descricao = '';
     this.categoriaId = null;
     this.precoCusto = null;
+    this.moeda = MoedaEnum.BRL;
     this.precoVenda = null;
     this.quantidadeEstoque = null;
+    this.demandaBase = null;
+    this.fatorElasticidade = null;
     this.produtoEmEdicaoId = null;
     this.exibirFormulario = false;
   }

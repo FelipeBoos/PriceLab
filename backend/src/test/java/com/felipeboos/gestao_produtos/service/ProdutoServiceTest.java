@@ -125,6 +125,7 @@ public class ProdutoServiceTest {
         assertEquals(100, response.getDemandaBase());
 
         verify(repository, times(1)).saveAndFlush(any(Produto.class));
+        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
     }
 
     @Test
@@ -139,6 +140,7 @@ public class ProdutoServiceTest {
 
         verify(categoriaRepository, never()).findById(anyLong());
         verify(repository, never()).saveAndFlush(any(Produto.class));
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -174,6 +176,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findById(1L);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -188,6 +191,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findById(1L);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -207,6 +211,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findByNome("Produto teste 1");
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -221,6 +226,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findByNome("Produto teste 1");
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -259,6 +265,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findAllByOrderByIdAsc();
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -273,6 +280,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findAllByOrderByIdAsc();
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -286,6 +294,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsById(1L);
         verify(repository, times(1)).deleteById(1L);
         verifyNoInteractions(categoriaRepository);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -301,6 +310,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsById(1L);
         verify(repository, never()).deleteById(anyLong());
         verifyNoInteractions(categoriaRepository);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -329,6 +339,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsByNome("Nome teste alteração");
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, times(1)).saveAndFlush(produto);
+        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
     }
 
     @Test
@@ -345,6 +356,7 @@ public class ProdutoServiceTest {
         verify(repository, never()).existsByNome(anyString());
         verify(repository, never()).saveAndFlush(any(Produto.class));
         verifyNoInteractions(categoriaRepository);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -362,6 +374,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsByNome(anyString());
         verify(repository, never()).saveAndFlush(any(Produto.class));
         verifyNoInteractions(categoriaRepository);
+        verifyNoInteractions(cambioService);
     }
 
     @Test
@@ -390,6 +403,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsByNome("Nome teste alteração parcial");
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).saveAndFlush(produto);
+        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
     }
 
     @Test
@@ -416,6 +430,7 @@ public class ProdutoServiceTest {
         verify(repository, never()).existsByNome(anyString());
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, times(1)).saveAndFlush(produto);
+        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
     }
 
     @Test
@@ -433,5 +448,48 @@ public class ProdutoServiceTest {
         verify(repository, never()).existsByNome(anyString());
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, never()).saveAndFlush(any(Produto.class));
+        verifyNoInteractions(cambioService);
+    }
+
+    @Test
+    @DisplayName("T18 - ProdutoServiceTest - Deve salvar produto em USD com cotação convertida")
+    void t18_deveSalvarProdutoEmUsdComCotacaoConvertida() {
+        ProdutoRequestDTO requestUsd = new ProdutoRequestDTO();
+        requestUsd.setNome("Produto em dólar");
+        requestUsd.setCategoriaId(1L);
+        requestUsd.setPrecoCusto(BigDecimal.valueOf(100));
+        requestUsd.setMoeda(Moeda.USD);
+        requestUsd.setPrecoVenda(BigDecimal.valueOf(700));
+        requestUsd.setQuantidadeEstoque(5);
+        requestUsd.setDemandaBase(20);
+        requestUsd.setFatorElasticidade(BigDecimal.valueOf(0.03));
+
+        Produto produtoUsd = Produto.builder()
+                .id(2L)
+                .nome("Produto em dólar")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100))
+                .moeda(Moeda.USD)
+                .cotacaoMoeda(BigDecimal.valueOf(5.25))
+                .precoCustoEmReais(BigDecimal.valueOf(525.00))
+                .precoVenda(BigDecimal.valueOf(700))
+                .quantidadeEstoque(5)
+                .demandaBase(20)
+                .fatorElasticidade(BigDecimal.valueOf(0.03))
+                .build();
+
+        when(repository.existsByNome("Produto em dólar")).thenReturn(false);
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
+        when(cambioService.obterCotacao(Moeda.USD)).thenReturn(BigDecimal.valueOf(5.25));
+        when(repository.saveAndFlush(any(Produto.class))).thenReturn(produtoUsd);
+
+        ProdutoResponseDTO response = service.salvarProduto(requestUsd);
+
+        assertNotNull(response);
+        assertEquals("Produto em dólar", response.getNome());
+        assertEquals(0, response.getPrecoCusto().compareTo(BigDecimal.valueOf(100)));
+
+        verify(repository, times(1)).saveAndFlush(any(Produto.class));
+        verify(cambioService, times(1)).obterCotacao(Moeda.USD);
     }
 }

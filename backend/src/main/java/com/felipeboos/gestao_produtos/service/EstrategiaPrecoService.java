@@ -152,6 +152,9 @@ public class EstrategiaPrecoService {
 
         response.setImpostoUnitario(impostoUnitario);
         response.setImpostoTotal(impostoTotal);
+        
+        // Adicionar avisos sobre viabilidade da estratégia
+        response.setAvisos(gerarAvisosEstrategia(estrategiaPreco));
 
         return response;
     }
@@ -252,5 +255,45 @@ public class EstrategiaPrecoService {
 
     private BigDecimal converterPercentualParaFracao(BigDecimal percentual) {
         return percentual.divide(BigDecimal.valueOf(100), SCALE_PERCENTUAL, RoundingMode.HALF_UP);
+    }
+    
+    private List<String> gerarAvisosEstrategia(EstrategiaPreco estrategiaPreco) {
+        List<String> avisos = new ArrayList<>();
+        
+        if (estrategiaPreco == null || estrategiaPreco.getProduto() == null) {
+            return avisos;
+        }
+        
+        // Aviso quando demanda estimada é zero
+        if (estrategiaPreco.getDemandaEstimada() != null && estrategiaPreco.getDemandaEstimada() <= 0) {
+            BigDecimal fatorElasticidade = estrategiaPreco.getProduto().getFatorElasticidade();
+            String avisoTexto = "⚠️ Demanda estimada zerada: O fator de elasticidade do produto (" + 
+                    String.format("%.2f", fatorElasticidade) + ") resultou em uma demanda estimada nula para a margem de lucro informada (" +
+                    String.format("%.2f", estrategiaPreco.getMargemLucro()) + "%). " +
+                    "Isso significa que o preço sugerido é tão alto que o produto não teria vendas estimadas. " +
+                    "Considere aumentar o fator de elasticidade do produto, aumentar a demanda base ou reduzir a margem de lucro.";
+            avisos.add(avisoTexto);
+        }
+        
+        // Aviso quando lucro total é zero ou negligenciável
+        if (estrategiaPreco.getLucroTotalEstimado() != null && 
+                estrategiaPreco.getLucroTotalEstimado().compareTo(BigDecimal.ZERO) <= 0) {
+            avisos.add("⚠️ Lucro total zerado: A estratégia resultou em lucro total estimado igual a zero. " +
+                    "Não há viabilidade econômica nesta configuração.");
+        }
+        
+        // Aviso quando demanda estimada é muito baixa (menos de 10% da demanda base)
+        Integer demandaBase = estrategiaPreco.getProduto().getDemandaBase();
+        if (demandaBase != null && demandaBase > 0 && estrategiaPreco.getDemandaEstimada() != null &&
+                estrategiaPreco.getDemandaEstimada() < demandaBase * 0.1) {
+            double percentualDemanda = (estrategiaPreco.getDemandaEstimada().doubleValue() / 
+                                       demandaBase.doubleValue()) * 100;
+            String avisoTexto = "ℹ️ Demanda crítica: A demanda estimada (" + 
+                    String.format("%.1f", percentualDemanda) + "% da demanda base) é muito baixa. " +
+                    "Revise a margem de lucro ou o fator de elasticidade do produto.";
+            avisos.add(avisoTexto);
+        }
+        
+        return avisos;
     }
 }
