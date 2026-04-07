@@ -58,6 +58,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.viewInicializada = true;
+    this.criarOuAtualizarGrafico();
   }
 
   carregarProdutos(): void {
@@ -109,7 +110,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
     const precoSugerido = this.resultadoSimulacao.precoSugerido;
     const lucroUnitario = this.resultadoSimulacao.lucroUnitario;
-    const percentualImposto = this.percentualImposto ?? 0;
+    const percentualImposto = this.resultadoSimulacao.percentualImposto ?? 0;
 
     if (!precoSugerido || precoSugerido <= 0) {
       return;
@@ -145,7 +146,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '68%',
+        cutout: '58%',
         plugins: {
           legend: {
             display: false
@@ -278,19 +279,19 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   }
 
   get percentualCustoBase(): number {
-    const margem = this.margemLucro ?? 0;
-    const imposto = this.percentualImposto ?? 0;
+    const margem = this.resultadoSimulacao?.margemLucro ?? 0;
+    const imposto = this.resultadoSimulacao?.percentualImposto ?? 0;
     const valor = 100 - margem - imposto;
 
     return valor < 0 ? 0 : Number(valor.toFixed(2));
   }
 
   get margemLucroValor(): number {
-    return this.margemLucro ?? 0;
+    return this.resultadoSimulacao?.margemLucro ?? 0;
   }
 
   get percentualImpostoValor(): number {
-    return this.percentualImposto ?? 0;
+    return this.resultadoSimulacao?.percentualImposto ?? 0;
   }
 
   private classificarMargem(margem: number): 'critica' | 'moderada' | 'saudavel' {
@@ -304,7 +305,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   }
 
   get obterTextoMargem(): string {
-    const margem = this.margemLucro ?? 0;
+    const margem = this.resultadoSimulacao?.margemLucro ?? 0;
     const classificacao = this.classificarMargem(margem);
 
     switch (classificacao) {
@@ -318,7 +319,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   }
 
   get posicaoIndicadorMargem(): number {
-    const margem = this.margemLucro ?? 0;
+    const margem = this.resultadoSimulacao?.margemLucro ?? 0;
 
     if (margem < 0) {
       return 0;
