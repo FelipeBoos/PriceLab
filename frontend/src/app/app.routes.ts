@@ -53,10 +53,6 @@ export const routes: Routes = [
                 component: Categorias
             },
             {
-                path: 'pedidos',
-                component: Pedidos
-            },
-            {
                 path: 'usuarios',
                 component: Usuarios
             }
