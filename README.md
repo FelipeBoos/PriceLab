@@ -1,6 +1,6 @@
-# PriceLab
+# 📊 PriceLab
 
-> Sistema fullstack de gestão de produtos com simulação de estratégias de precificação.
+> PriceLab é um sistema fullstack de gestão de produtos que permite cadastrar produtos e categorias, simular estratégias de precificação com base em margem de lucro, impostos e elasticidade de demanda, e visualizar a composição financeira de cada produto.
 
 Desenvolvido por **Felipe Boos**
 
