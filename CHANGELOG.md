@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/FelipeBoos/PriceLab/compare/v1.0.0...v1.0.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* **frontend:** fix profit margin analysis indicator in price simulation page to display the correct value ([52831ec](https://github.com/FelipeBoos/PriceLab/commit/52831eca7506fb36f83ead7c0e0540d83d0bcd03))
+
 ## 1.0.0 (2026-04-09)
 
 
