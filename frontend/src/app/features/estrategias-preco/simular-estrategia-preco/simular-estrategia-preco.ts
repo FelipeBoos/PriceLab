@@ -295,10 +295,10 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   }
 
   private classificarMargem(margem: number): 'critica' | 'moderada' | 'saudavel' {
-    if (margem < 10) {
+    if (margem < 20) {
       return 'critica';
     }
-    if (margem < 25) {
+    if (margem < 50) {
       return 'moderada';
     }
     return 'saudavel';
@@ -325,8 +325,8 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
       return 0;
     }
 
-    if (margem > 50) {
-      return 50;
+    if (margem > 100) {
+      return 100;
     }
 
     return margem;
