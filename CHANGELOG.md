@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/FelipeBoos/PriceLab/compare/v1.0.1...v1.1.0) (2026-04-10)
+
+
+### Features
+
+* **frontend:** add category tag for product in price strategy simulation page ([7989f56](https://github.com/FelipeBoos/PriceLab/commit/7989f5697bae32f695d905cb975dc95d59d72895))
+
 ## [1.0.1](https://github.com/FelipeBoos/PriceLab/compare/v1.0.0...v1.0.1) (2026-04-09)
 
 
