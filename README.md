@@ -104,7 +104,7 @@ Aplicação disponível em: `http://localhost:4200`
 
 Os testes unitários rodam com JUnit 5 e são executados automaticamente no pipeline de CI via GitHub Actions a cada push.
 
-Para rodar localmente:
+Como rodar localmente:
 
 ```bash
 cd backend

@@ -1,4 +1,4 @@
-package com.felipeboos.gestao_produtos.service;
+package com.felipeboos.gestao_produtos.service.cambio;
 
 import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.service.cambio.CambioService;
