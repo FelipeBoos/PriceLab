@@ -58,8 +58,7 @@ public class ProdutoService {
     }
 
     public List<ProdutoResponseDTO> buscarProdutoPorNome(String nome) {
-
-        Produto produto =  repository.findByNome(nome).orElseThrow(
+        Produto produto = repository.findByNome(nome).orElseThrow(
                 () -> new RecursoNaoEncontradoException("Produto nao encontrado para o nome informado")
         );
 
@@ -100,6 +99,7 @@ public class ProdutoService {
         }
 
         aplicarAlteracoes(produtoEntity, produtoPatch);
+        recalcularCamposMonetarios(produtoEntity);
 
         repository.saveAndFlush(produtoEntity);
     }
@@ -132,10 +132,21 @@ public class ProdutoService {
         if (produtoPatch.getFatorElasticidade() != null) {
             produtoEntity.setFatorElasticidade(produtoPatch.getFatorElasticidade());
         }
-
-        BigDecimal cotacao = cambioService.obterCotacao(produtoEntity.getMoeda());
-        produtoEntity.setCotacaoMoeda(cotacao);
-        produtoEntity.setPrecoCustoEmReais(produtoEntity.getPrecoCusto().multiply(cotacao));
+        if (produtoPatch.getImportado() != null) {
+            produtoEntity.setImportado(produtoPatch.getImportado());
+        }
+        if (produtoPatch.getRemessaConforme() != null) {
+            produtoEntity.setRemessaConforme(produtoPatch.getRemessaConforme());
+        }
+        if (produtoPatch.getFreteInternacional() != null) {
+            produtoEntity.setFreteInternacional(produtoPatch.getFreteInternacional());
+        }
+        if (produtoPatch.getSeguroInternacional() != null) {
+            produtoEntity.setSeguroInternacional(produtoPatch.getSeguroInternacional());
+        }
+        if (produtoPatch.getAliquotaIcmsImportacao() != null) {
+            produtoEntity.setAliquotaIcmsImportacao(produtoPatch.getAliquotaIcmsImportacao());
+        }
     }
 
     private void setCategoria(Produto produtoEntity, Long categoriaId) {
@@ -155,17 +166,44 @@ public class ProdutoService {
                 .quantidadeEstoque(dto.getQuantidadeEstoque())
                 .demandaBase(dto.getDemandaBase())
                 .fatorElasticidade(dto.getFatorElasticidade())
+                .importado(dto.getImportado())
+                .remessaConforme(dto.getRemessaConforme())
+                .freteInternacional(dto.getFreteInternacional())
+                .seguroInternacional(dto.getSeguroInternacional())
+                .aliquotaIcmsImportacao(dto.getAliquotaIcmsImportacao())
                 .build();
 
         setCategoria(produto, dto.getCategoriaId());
 
         Moeda moeda = dto.getMoeda() != null ? dto.getMoeda() : Moeda.BRL;
-        BigDecimal cotacao = cambioService.obterCotacao(moeda);
-
         produto.setMoeda(moeda);
-        produto.setCotacaoMoeda(cotacao);
-        produto.setPrecoCustoEmReais(dto.getPrecoCusto().multiply(cotacao));
+
+        recalcularCamposMonetarios(produto);
 
         return produto;
+    }
+
+    private void recalcularCamposMonetarios(Produto produto) {
+        BigDecimal cotacao = cambioService.obterCotacao(produto.getMoeda());
+        BigDecimal precoCustoEmReais = produto.getPrecoCusto().multiply(cotacao);
+
+        produto.setCotacaoMoeda(cotacao);
+        produto.setPrecoCustoEmReais(precoCustoEmReais);
+
+        BigDecimal frete = valorOuZero(produto.getFreteInternacional());
+        BigDecimal seguro = valorOuZero(produto.getSeguroInternacional());
+
+        produto.setImpostoImportacao(BigDecimal.ZERO);
+        produto.setIcmsImportacao(BigDecimal.ZERO);
+
+        BigDecimal custoFinalAquisicao = precoCustoEmReais
+                .add(frete)
+                .add(seguro);
+
+        produto.setCustoFinalAquisicao(custoFinalAquisicao);
+    }
+
+    private BigDecimal valorOuZero(BigDecimal valor) {
+        return valor != null ? valor : BigDecimal.ZERO;
     }
 }

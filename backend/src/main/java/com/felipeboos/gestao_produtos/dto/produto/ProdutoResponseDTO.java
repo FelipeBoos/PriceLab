@@ -21,8 +21,16 @@ public class ProdutoResponseDTO {
     private BigDecimal cotacaoMoeda;
     private BigDecimal precoCustoEmReais;
 
-    private BigDecimal precoVenda;
+    private Boolean importado;
+    private Boolean remessaConforme;
+    private BigDecimal freteInternacional;
+    private BigDecimal seguroInternacional;
+    private BigDecimal aliquotaIcmsImportacao;
+    private BigDecimal impostoImportacao;
+    private BigDecimal icmsImportacao;
+    private BigDecimal custoFinalAquisicao;
 
+    private BigDecimal precoVenda;
     private Integer quantidadeEstoque;
 
     private Integer demandaBase;
@@ -44,6 +52,15 @@ public class ProdutoResponseDTO {
         dto.setMoeda(produto.getMoeda());
         dto.setCotacaoMoeda(produto.getCotacaoMoeda());
         dto.setPrecoCustoEmReais(produto.getPrecoCustoEmReais());
+
+        dto.setImportado(produto.getImportado());
+        dto.setRemessaConforme(produto.getRemessaConforme());
+        dto.setFreteInternacional(produto.getFreteInternacional());
+        dto.setSeguroInternacional(produto.getSeguroInternacional());
+        dto.setAliquotaIcmsImportacao(produto.getAliquotaIcmsImportacao());
+        dto.setImpostoImportacao(produto.getImpostoImportacao());
+        dto.setIcmsImportacao(produto.getIcmsImportacao());
+        dto.setCustoFinalAquisicao(produto.getCustoFinalAquisicao());
 
         dto.setPrecoVenda(produto.getPrecoVenda());
         dto.setQuantidadeEstoque(produto.getQuantidadeEstoque());

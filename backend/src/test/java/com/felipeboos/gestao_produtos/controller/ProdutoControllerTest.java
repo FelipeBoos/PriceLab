@@ -62,6 +62,14 @@ class ProdutoControllerTest {
         responseDTO.setMoeda(Moeda.BRL);
         responseDTO.setCotacaoMoeda(BigDecimal.ONE);
         responseDTO.setPrecoCustoEmReais(BigDecimal.valueOf(450));
+        responseDTO.setImportado(false);
+        responseDTO.setRemessaConforme(false);
+        responseDTO.setFreteInternacional(BigDecimal.ZERO);
+        responseDTO.setSeguroInternacional(BigDecimal.ZERO);
+        responseDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        responseDTO.setImpostoImportacao(BigDecimal.ZERO);
+        responseDTO.setIcmsImportacao(BigDecimal.ZERO);
+        responseDTO.setCustoFinalAquisicao(BigDecimal.valueOf(450));
         responseDTO.setPrecoVenda(BigDecimal.valueOf(600));
         responseDTO.setQuantidadeEstoque(10);
         responseDTO.setDemandaBase(100);
@@ -112,6 +120,14 @@ class ProdutoControllerTest {
         produto1.setMoeda(Moeda.BRL);
         produto1.setCotacaoMoeda(BigDecimal.ONE);
         produto1.setPrecoCustoEmReais(BigDecimal.valueOf(450));
+        produto1.setImportado(false);
+        produto1.setRemessaConforme(false);
+        produto1.setFreteInternacional(BigDecimal.ZERO);
+        produto1.setSeguroInternacional(BigDecimal.ZERO);
+        produto1.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        produto1.setImpostoImportacao(BigDecimal.ZERO);
+        produto1.setIcmsImportacao(BigDecimal.ZERO);
+        produto1.setCustoFinalAquisicao(BigDecimal.valueOf(450));
         produto1.setPrecoVenda(BigDecimal.valueOf(600));
         produto1.setQuantidadeEstoque(10);
         produto1.setDemandaBase(100);
@@ -126,6 +142,14 @@ class ProdutoControllerTest {
         produto2.setMoeda(Moeda.BRL);
         produto2.setCotacaoMoeda(BigDecimal.ONE);
         produto2.setPrecoCustoEmReais(BigDecimal.valueOf(370));
+        produto2.setImportado(false);
+        produto2.setRemessaConforme(false);
+        produto2.setFreteInternacional(BigDecimal.ZERO);
+        produto2.setSeguroInternacional(BigDecimal.ZERO);
+        produto2.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        produto2.setImpostoImportacao(BigDecimal.ZERO);
+        produto2.setIcmsImportacao(BigDecimal.ZERO);
+        produto2.setCustoFinalAquisicao(BigDecimal.valueOf(370));
         produto2.setPrecoVenda(BigDecimal.valueOf(430));
         produto2.setQuantidadeEstoque(25);
         produto2.setDemandaBase(80);
@@ -157,6 +181,14 @@ class ProdutoControllerTest {
         produto.setMoeda(Moeda.BRL);
         produto.setCotacaoMoeda(BigDecimal.ONE);
         produto.setPrecoCustoEmReais(BigDecimal.valueOf(450));
+        produto.setImportado(false);
+        produto.setRemessaConforme(false);
+        produto.setFreteInternacional(BigDecimal.ZERO);
+        produto.setSeguroInternacional(BigDecimal.ZERO);
+        produto.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        produto.setImpostoImportacao(BigDecimal.ZERO);
+        produto.setIcmsImportacao(BigDecimal.ZERO);
+        produto.setCustoFinalAquisicao(BigDecimal.valueOf(450));
         produto.setPrecoVenda(BigDecimal.valueOf(600));
         produto.setQuantidadeEstoque(10);
         produto.setDemandaBase(100);
@@ -201,6 +233,11 @@ class ProdutoControllerTest {
         requestDTO.setQuantidadeEstoque(10);
         requestDTO.setDemandaBase(100);
         requestDTO.setFatorElasticidade(BigDecimal.valueOf(0.05));
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         ProdutoResponseDTO responseDTO = new ProdutoResponseDTO();
         responseDTO.setId(1L);
@@ -212,6 +249,14 @@ class ProdutoControllerTest {
         responseDTO.setMoeda(Moeda.BRL);
         responseDTO.setCotacaoMoeda(BigDecimal.ONE);
         responseDTO.setPrecoCustoEmReais(BigDecimal.valueOf(450));
+        responseDTO.setImportado(false);
+        responseDTO.setRemessaConforme(false);
+        responseDTO.setFreteInternacional(BigDecimal.ZERO);
+        responseDTO.setSeguroInternacional(BigDecimal.ZERO);
+        responseDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        responseDTO.setImpostoImportacao(BigDecimal.ZERO);
+        responseDTO.setIcmsImportacao(BigDecimal.ZERO);
+        responseDTO.setCustoFinalAquisicao(BigDecimal.valueOf(450));
         responseDTO.setPrecoVenda(BigDecimal.valueOf(600));
         responseDTO.setQuantidadeEstoque(10);
         responseDTO.setDemandaBase(100);
@@ -241,6 +286,11 @@ class ProdutoControllerTest {
         requestDTO.setMoeda(Moeda.BRL);
         requestDTO.setPrecoVenda(BigDecimal.valueOf(600));
         requestDTO.setQuantidadeEstoque(10);
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         mockMvc.perform(post("/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -260,6 +310,11 @@ class ProdutoControllerTest {
         requestDTO.setMoeda(Moeda.BRL);
         requestDTO.setPrecoVenda(BigDecimal.valueOf(600));
         requestDTO.setQuantidadeEstoque(10);
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         mockMvc.perform(post("/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -280,6 +335,11 @@ class ProdutoControllerTest {
         requestDTO.setMoeda(Moeda.BRL);
         requestDTO.setPrecoVenda(BigDecimal.valueOf(600));
         requestDTO.setQuantidadeEstoque(10);
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         mockMvc.perform(post("/produtos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -300,6 +360,11 @@ class ProdutoControllerTest {
         requestDTO.setMoeda(Moeda.BRL);
         requestDTO.setPrecoVenda(BigDecimal.valueOf(600));
         requestDTO.setQuantidadeEstoque(10);
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         when(service.salvarProduto(any(ProdutoRequestDTO.class)))
                 .thenThrow(new RecursoDuplicadoException("Já existe um produto cadastrado com esse nome"));
@@ -325,6 +390,11 @@ class ProdutoControllerTest {
         requestDTO.setMoeda(Moeda.BRL);
         requestDTO.setPrecoVenda(BigDecimal.valueOf(600));
         requestDTO.setQuantidadeEstoque(10);
+        requestDTO.setImportado(false);
+        requestDTO.setRemessaConforme(false);
+        requestDTO.setFreteInternacional(BigDecimal.ZERO);
+        requestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        requestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         when(service.salvarProduto(any(ProdutoRequestDTO.class)))
                 .thenThrow(new RecursoNaoEncontradoException("Categoria nao encontrada para o id informado"));

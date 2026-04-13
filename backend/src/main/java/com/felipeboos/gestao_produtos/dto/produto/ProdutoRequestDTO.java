@@ -42,4 +42,22 @@ public class ProdutoRequestDTO {
 
     @PositiveOrZero(message = "O fator de elasticidade nao pode ser negativo")
     private BigDecimal fatorElasticidade;
+
+    @NotNull(message = "O campo importado eh obrigatorio")
+    private Boolean importado;
+
+    @NotNull(message = "O campo remessaConforme eh obrigatorio")
+    private Boolean remessaConforme;
+
+    @NotNull(message = "O frete internacional eh obrigatorio")
+    @PositiveOrZero(message = "O frete internacional nao pode ser negativo")
+    private BigDecimal freteInternacional;
+
+    @NotNull(message = "O seguro internacional eh obrigatorio")
+    @PositiveOrZero(message = "O seguro internacional nao pode ser negativo")
+    private BigDecimal seguroInternacional;
+
+    @NotNull(message = "A aliquota de ICMS de importacao eh obrigatoria")
+    @PositiveOrZero(message = "A aliquota de ICMS de importacao nao pode ser negativa")
+    private BigDecimal aliquotaIcmsImportacao;
 }
