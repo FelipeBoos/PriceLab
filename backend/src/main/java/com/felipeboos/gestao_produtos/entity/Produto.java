@@ -38,6 +38,30 @@ public class Produto extends EntidadeBase {
     @Column(name = "preco_custo_em_reais", precision = 19, scale = 4, nullable = false)
     private BigDecimal precoCustoEmReais;
 
+    @Column(name = "importado", nullable = false)
+    private Boolean importado;
+
+    @Column(name = "remessa_conforme", nullable = false)
+    private Boolean remessaConforme;
+
+    @Column(name = "frete_internacional", precision = 19, scale = 4, nullable = false)
+    private BigDecimal freteInternacional;
+
+    @Column(name = "seguro_internacional", precision = 19, scale = 4, nullable = false)
+    private BigDecimal seguroInternacional;
+
+    @Column(name = "aliquota_icms_importacao", precision = 5, scale = 2, nullable = false)
+    private BigDecimal aliquotaIcmsImportacao;
+
+    @Column(name = "imposto_importacao", precision = 19, scale = 4, nullable = false)
+    private BigDecimal impostoImportacao;
+
+    @Column(name = "icms_importacao", precision = 19, scale = 4, nullable = false)
+    private BigDecimal icmsImportacao;
+
+    @Column(name = "custo_final_aquisicao", precision = 19, scale = 4, nullable = false)
+    private BigDecimal custoFinalAquisicao;
+
     @Column(name = "preco_venda", precision = 19, scale = 4)
     private BigDecimal precoVenda;
 

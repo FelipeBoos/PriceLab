@@ -111,12 +111,21 @@
         </div>
 
         <div>
-            <label for="moeda">Moeda</label>
-            <select id="moeda" [(ngModel)]="moeda" name="moeda" required>
-                <option value="BRL">BRL (Real Brasileiro)</option>
-                <option value="USD">USD (Dólar Americano)</option>
-                <option value="EUR">EUR (Euro)</option>
-            </select>
+            <label>Moeda</label>
+            <div class="moeda-options">
+                <label class="moeda-option">
+                    <input type="radio" name="moeda" [(ngModel)]="moeda" value="BRL">
+                    <span>🇧🇷 BRL (Real)</span>
+                </label>
+                <label class="moeda-option">
+                    <input type="radio" name="moeda" [(ngModel)]="moeda" value="USD">
+                    <span>🇺🇸 USD (Dólar)</span>
+                </label>
+                <label class="moeda-option">
+                    <input type="radio" name="moeda" [(ngModel)]="moeda" value="EUR">
+                    <span>🇪🇺 EUR (Euro)</span>
+                </label>
+            </div>
         </div>
 
         <div>

@@ -4,11 +4,12 @@ import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.entity.EstrategiaPreco;
 import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.entity.Produto;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,13 +17,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class EstrategiaPrecoRepositoryTest {
+
     @Autowired
     private EstrategiaPrecoRepository repository;
 
@@ -132,10 +131,18 @@ class EstrategiaPrecoRepositoryTest {
         BigDecimal precoCusto = BigDecimal.valueOf(100.00);
 
         produto.setPrecoCusto(precoCusto);
-
         produto.setMoeda(Moeda.BRL);
         produto.setCotacaoMoeda(BigDecimal.ONE);
         produto.setPrecoCustoEmReais(precoCusto);
+
+        produto.setImportado(false);
+        produto.setRemessaConforme(false);
+        produto.setFreteInternacional(BigDecimal.ZERO);
+        produto.setSeguroInternacional(BigDecimal.ZERO);
+        produto.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        produto.setImpostoImportacao(BigDecimal.ZERO);
+        produto.setIcmsImportacao(BigDecimal.ZERO);
+        produto.setCustoFinalAquisicao(precoCusto);
 
         produto.setPrecoVenda(BigDecimal.valueOf(150.00));
         produto.setQuantidadeEstoque(10);

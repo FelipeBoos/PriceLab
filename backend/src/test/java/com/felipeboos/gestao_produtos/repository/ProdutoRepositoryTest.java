@@ -6,16 +6,15 @@ import com.felipeboos.gestao_produtos.entity.Produto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -144,10 +143,21 @@ class ProdutoRepositoryTest {
         produto.setMoeda(Moeda.BRL);
         produto.setCotacaoMoeda(BigDecimal.ONE);
         produto.setPrecoCustoEmReais(precoCusto);
+
+        produto.setImportado(false);
+        produto.setRemessaConforme(false);
+        produto.setFreteInternacional(BigDecimal.ZERO);
+        produto.setSeguroInternacional(BigDecimal.ZERO);
+        produto.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
+        produto.setImpostoImportacao(BigDecimal.ZERO);
+        produto.setIcmsImportacao(BigDecimal.ZERO);
+        produto.setCustoFinalAquisicao(precoCusto);
+
         produto.setPrecoVenda(BigDecimal.valueOf(150.00));
         produto.setQuantidadeEstoque(10);
         produto.setDemandaBase(50);
         produto.setFatorElasticidade(BigDecimal.valueOf(0.10));
+
         return produto;
     }
 }
