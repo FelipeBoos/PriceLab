@@ -10,11 +10,11 @@ import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
 import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
-import com.felipeboos.gestao_produtos.service.cambio.CambioService;
+import com.felipeboos.gestao_produtos.service.importacao.ImportacaoService;
+import com.felipeboos.gestao_produtos.service.importacao.ResultadoCalculoImportacao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,27 +23,25 @@ public class ProdutoService {
 
     private final ProdutoRepository repository;
     private final CategoriaRepository catRepository;
-    private final CambioService cambioService;
+    private final ImportacaoService importacaoService;
 
     public ProdutoService(
             ProdutoRepository repository,
             CategoriaRepository catRepository,
-            CambioService cambioService
+            ImportacaoService importacaoService
     ) {
         this.repository = repository;
         this.catRepository = catRepository;
-        this.cambioService = cambioService;
+        this.importacaoService = importacaoService;
     }
 
     @Transactional
     public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO dto) {
-
         if (repository.existsByNome(dto.getNome())) {
             throw new RecursoDuplicadoException("Já existe um produto cadastrado com esse nome");
         }
 
         Produto produto = toEntity(dto);
-
         Produto produtoSalvo = repository.saveAndFlush(produto);
 
         return ProdutoResponseDTO.fromEntity(produtoSalvo);
@@ -68,7 +66,6 @@ public class ProdutoService {
     @Transactional(readOnly = true)
     public List<ProdutoResponseDTO> listarTodosOsProdutos() {
         List<Produto> listaProdutos = repository.findAllByOrderByIdAsc();
-
         List<ProdutoResponseDTO> listaProdutosResponse = new ArrayList<>();
 
         for (Produto produto : listaProdutos) {
@@ -86,8 +83,8 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
+    @Transactional
     public void atualizarProdutoPorId(Long id, ProdutoUpdateDTO produtoPatch) {
-
         Produto produtoEntity = repository.findById(id).orElseThrow(
                 () -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado")
         );
@@ -99,7 +96,7 @@ public class ProdutoService {
         }
 
         aplicarAlteracoes(produtoEntity, produtoPatch);
-        recalcularCamposMonetarios(produtoEntity);
+        aplicarResultadoCalculo(produtoEntity);
 
         repository.saveAndFlush(produtoEntity);
     }
@@ -178,32 +175,18 @@ public class ProdutoService {
         Moeda moeda = dto.getMoeda() != null ? dto.getMoeda() : Moeda.BRL;
         produto.setMoeda(moeda);
 
-        recalcularCamposMonetarios(produto);
+        aplicarResultadoCalculo(produto);
 
         return produto;
     }
 
-    private void recalcularCamposMonetarios(Produto produto) {
-        BigDecimal cotacao = cambioService.obterCotacao(produto.getMoeda());
-        BigDecimal precoCustoEmReais = produto.getPrecoCusto().multiply(cotacao);
+    private void aplicarResultadoCalculo(Produto produto) {
+        ResultadoCalculoImportacao resultado = importacaoService.calcular(produto);
 
-        produto.setCotacaoMoeda(cotacao);
-        produto.setPrecoCustoEmReais(precoCustoEmReais);
-
-        BigDecimal frete = valorOuZero(produto.getFreteInternacional());
-        BigDecimal seguro = valorOuZero(produto.getSeguroInternacional());
-
-        produto.setImpostoImportacao(BigDecimal.ZERO);
-        produto.setIcmsImportacao(BigDecimal.ZERO);
-
-        BigDecimal custoFinalAquisicao = precoCustoEmReais
-                .add(frete)
-                .add(seguro);
-
-        produto.setCustoFinalAquisicao(custoFinalAquisicao);
-    }
-
-    private BigDecimal valorOuZero(BigDecimal valor) {
-        return valor != null ? valor : BigDecimal.ZERO;
+        produto.setCotacaoMoeda(resultado.getCotacaoMoeda());
+        produto.setPrecoCustoEmReais(resultado.getPrecoCustoEmReais());
+        produto.setImpostoImportacao(resultado.getImpostoImportacao());
+        produto.setIcmsImportacao(resultado.getIcmsImportacao());
+        produto.setCustoFinalAquisicao(resultado.getCustoFinalAquisicao());
     }
 }
