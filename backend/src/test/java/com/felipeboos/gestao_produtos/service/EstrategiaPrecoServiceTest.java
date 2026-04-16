@@ -4,8 +4,8 @@ import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoRequest
 import com.felipeboos.gestao_produtos.dto.estrategiapreco.EstrategiaPrecoResponseDTO;
 import com.felipeboos.gestao_produtos.entity.Categoria;
 import com.felipeboos.gestao_produtos.entity.EstrategiaPreco;
+import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.entity.Produto;
-import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
 import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.EstrategiaPrecoRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
@@ -43,10 +43,10 @@ public class EstrategiaPrecoServiceTest {
     private EstrategiaPrecoRequestDTO requestDTO;
     private EstrategiaPreco estrategiaPreco;
 
-    private final BigDecimal precoSugeridoEsperado = BigDecimal.valueOf(594);
-    private final BigDecimal lucroUnitarioEsperado = BigDecimal.valueOf(90);
-    private final int demandaEstimadaEsperada = 70;
-    private final BigDecimal lucroTotalEsperado = BigDecimal.valueOf(6300);
+    private final BigDecimal precoSugeridoEsperado = BigDecimal.valueOf(712.80);
+    private final BigDecimal lucroUnitarioEsperado = BigDecimal.valueOf(108.00);
+    private final int demandaEstimadaEsperada = 64;
+    private final BigDecimal lucroTotalEsperado = BigDecimal.valueOf(6912.00);
 
     @BeforeEach
     void setup() {
@@ -60,7 +60,16 @@ public class EstrategiaPrecoServiceTest {
                 .id(1L)
                 .nome("Produto teste")
                 .categoria(categoria)
-                .precoCusto(BigDecimal.valueOf(450))
+                .precoCusto(BigDecimal.valueOf(100))
+                .moeda(Moeda.USD)
+                .cotacaoMoeda(BigDecimal.valueOf(4.50))
+                .precoCustoEmReais(BigDecimal.valueOf(450.00))
+                .importado(true)
+                .freteInternacional(BigDecimal.valueOf(50.00))
+                .seguroInternacional(BigDecimal.valueOf(40.00))
+                .impostoImportacao(BigDecimal.valueOf(54.00))
+                .icmsImportacao(BigDecimal.valueOf(36.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(540.00))
                 .demandaBase(100)
                 .fatorElasticidade(BigDecimal.valueOf(0.05))
                 .build();
@@ -75,10 +84,10 @@ public class EstrategiaPrecoServiceTest {
                 .produto(produto)
                 .margemLucro(BigDecimal.valueOf(20))
                 .percentualImposto(BigDecimal.valueOf(10))
-                .precoSugerido(BigDecimal.valueOf(594))
-                .lucroUnitario(BigDecimal.valueOf(90))
-                .demandaEstimada(70)
-                .lucroTotalEstimado(BigDecimal.valueOf(6300))
+                .precoSugerido(precoSugeridoEsperado)
+                .lucroUnitario(lucroUnitarioEsperado)
+                .demandaEstimada(demandaEstimadaEsperada)
+                .lucroTotalEstimado(lucroTotalEsperado)
                 .dataSimulacao(Instant.now())
                 .build();
     }
@@ -96,7 +105,7 @@ public class EstrategiaPrecoServiceTest {
         assertEquals(BigDecimal.valueOf(20), responseDTO.getMargemLucro());
         assertEquals(BigDecimal.valueOf(10), responseDTO.getPercentualImposto());
 
-        // Validando campos calculados:
+        assertEquals(0, responseDTO.getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
         assertEquals(0, responseDTO.getPrecoSugerido().compareTo(precoSugeridoEsperado));
         assertEquals(0, responseDTO.getLucroUnitario().compareTo(lucroUnitarioEsperado));
         assertEquals(demandaEstimadaEsperada, responseDTO.getDemandaEstimada());
@@ -110,9 +119,10 @@ public class EstrategiaPrecoServiceTest {
     void t2_deveLancarExcecaoAoSimularComProdutoInexistente() {
         when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
 
-
-        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
-                () -> service.simularPreco(requestDTO));
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> service.simularPreco(requestDTO)
+        );
 
         assertEquals("Produto nao encontrado para o id informado", exception.getMessage());
         verify(produtoRepository, times(1)).findById(1L);
@@ -131,10 +141,12 @@ public class EstrategiaPrecoServiceTest {
         assertEquals("Produto teste", responseDTO.getProdutoNome());
         assertEquals(BigDecimal.valueOf(20), responseDTO.getMargemLucro());
         assertEquals(BigDecimal.valueOf(10), responseDTO.getPercentualImposto());
-        assertEquals(BigDecimal.valueOf(594), responseDTO.getPrecoSugerido());
-        assertEquals(BigDecimal.valueOf(90), responseDTO.getLucroUnitario());
-        assertEquals(70, responseDTO.getDemandaEstimada());
-        assertEquals(BigDecimal.valueOf(6300), responseDTO.getLucroTotalEstimado());
+        assertEquals(0, responseDTO.getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
+        assertEquals(0, responseDTO.getPrecoSugerido().compareTo(precoSugeridoEsperado));
+        assertEquals(0, responseDTO.getLucroUnitario().compareTo(lucroUnitarioEsperado));
+        assertEquals(demandaEstimadaEsperada, responseDTO.getDemandaEstimada());
+        assertEquals(0, responseDTO.getLucroTotalEstimado().compareTo(lucroTotalEsperado));
+
         verify(produtoRepository, times(1)).findById(1L);
         verify(repository, times(1)).saveAndFlush(any(EstrategiaPreco.class));
     }
@@ -155,8 +167,6 @@ public class EstrategiaPrecoServiceTest {
 
         assertEquals(BigDecimal.valueOf(20), estrategiaCapturada.getMargemLucro());
         assertEquals(BigDecimal.valueOf(10), estrategiaCapturada.getPercentualImposto());
-
-        // Validando campos calculados:
         assertEquals(0, estrategiaCapturada.getPrecoSugerido().compareTo(precoSugeridoEsperado));
         assertEquals(0, estrategiaCapturada.getLucroUnitario().compareTo(lucroUnitarioEsperado));
         assertEquals(demandaEstimadaEsperada, estrategiaCapturada.getDemandaEstimada());
@@ -170,8 +180,10 @@ public class EstrategiaPrecoServiceTest {
     void t5_deveLancarExcecaoAoCriarEstrategiaComProdutoInexistente() {
         when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
 
-        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
-                () -> service.criarEstrategiaPreco(requestDTO));
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> service.criarEstrategiaPreco(requestDTO)
+        );
 
         assertEquals("Produto nao encontrado para o id informado", exception.getMessage());
         verify(produtoRepository, times(1)).findById(1L);
@@ -181,12 +193,16 @@ public class EstrategiaPrecoServiceTest {
     @Test
     @DisplayName("T6 - EstrategiaPrecoServiceTest - Deve listar todas as estrategias com sucesso")
     void t6_deveListarTodasAsEstrategiasComSucesso() {
-
         Produto produto2 = Produto.builder()
                 .id(2L)
                 .nome("Produto teste 2")
                 .categoria(categoria)
                 .precoCusto(BigDecimal.valueOf(730))
+                .moeda(Moeda.BRL)
+                .cotacaoMoeda(BigDecimal.ONE)
+                .precoCustoEmReais(BigDecimal.valueOf(730.00))
+                .importado(false)
+                .custoFinalAquisicao(BigDecimal.valueOf(730.00))
                 .demandaBase(175)
                 .fatorElasticidade(BigDecimal.valueOf(0.07))
                 .build();
@@ -197,9 +213,9 @@ public class EstrategiaPrecoServiceTest {
                 .margemLucro(BigDecimal.valueOf(15))
                 .percentualImposto(BigDecimal.valueOf(12))
                 .precoSugerido(BigDecimal.valueOf(940.24))
-                .lucroUnitario(BigDecimal.valueOf(109.5))
+                .lucroUnitario(BigDecimal.valueOf(109.50))
                 .demandaEstimada(109)
-                .lucroTotalEstimado(BigDecimal.valueOf(11935.5))
+                .lucroTotalEstimado(BigDecimal.valueOf(11935.50))
                 .dataSimulacao(Instant.now())
                 .build();
 
@@ -213,14 +229,16 @@ public class EstrategiaPrecoServiceTest {
         assertEquals(1L, response.get(0).getId());
         assertEquals(1L, response.get(0).getProdutoId());
         assertEquals("Produto teste", response.get(0).getProdutoNome());
+        assertEquals(0, response.get(0).getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
         assertEquals(0, response.get(0).getMargemLucro().compareTo(BigDecimal.valueOf(20)));
         assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(lucroTotalEsperado));
 
         assertEquals(2L, response.get(1).getId());
         assertEquals(2L, response.get(1).getProdutoId());
         assertEquals("Produto teste 2", response.get(1).getProdutoNome());
+        assertEquals(0, response.get(1).getPrecoUnidade().compareTo(BigDecimal.valueOf(730.00)));
         assertEquals(0, response.get(1).getMargemLucro().compareTo(BigDecimal.valueOf(15)));
-        assertEquals(0, response.get(1).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(11935.5)));
+        assertEquals(0, response.get(1).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(11935.50)));
 
         verify(repository, times(1)).findAllByOrderByIdAsc();
     }
@@ -249,10 +267,11 @@ public class EstrategiaPrecoServiceTest {
         assertEquals(1L, response.getId());
         assertEquals(1L, response.getProdutoId());
         assertEquals("Produto teste", response.getProdutoNome());
+        assertEquals(0, response.getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
         assertEquals(0, response.getMargemLucro().compareTo(BigDecimal.valueOf(20)));
         assertEquals(0, response.getPercentualImposto().compareTo(BigDecimal.valueOf(10)));
-        assertEquals(0, response.getLucroUnitario().compareTo(BigDecimal.valueOf(90)));
-        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(594)));
+        assertEquals(0, response.getLucroUnitario().compareTo(lucroUnitarioEsperado));
+        assertEquals(0, response.getPrecoSugerido().compareTo(precoSugeridoEsperado));
 
         verify(repository, times(1)).findById(1L);
     }
@@ -262,8 +281,10 @@ public class EstrategiaPrecoServiceTest {
     void t9_deveLancarExcecaoAoBuscarEstrategiaPorIdInexistente() {
         when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
-                () -> service.buscarEstrategiaPorId(1L));
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> service.buscarEstrategiaPorId(1L)
+        );
 
         assertEquals("Estrategia de preco nao encontrada para o id informado", exception.getMessage());
         verify(repository, times(1)).findById(1L);
@@ -277,10 +298,10 @@ public class EstrategiaPrecoServiceTest {
                 .produto(produto)
                 .margemLucro(BigDecimal.valueOf(12))
                 .percentualImposto(BigDecimal.valueOf(8))
-                .precoSugerido(BigDecimal.valueOf(544.32))
-                .lucroUnitario(BigDecimal.valueOf(54))
-                .demandaEstimada(73)
-                .lucroTotalEstimado(BigDecimal.valueOf(3942))
+                .precoSugerido(BigDecimal.valueOf(653.18))
+                .lucroUnitario(BigDecimal.valueOf(53.18))
+                .demandaEstimada(67)
+                .lucroTotalEstimado(BigDecimal.valueOf(3563.06))
                 .dataSimulacao(Instant.now())
                 .build();
 
@@ -294,13 +315,15 @@ public class EstrategiaPrecoServiceTest {
         assertEquals(1L, response.get(0).getProdutoId());
         assertEquals("Produto teste", response.get(0).getProdutoNome());
         assertEquals("Eletrônicos", response.get(0).getCategoriaNome());
-        assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(6300)));
+        assertEquals(0, response.get(0).getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
+        assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(6912.00)));
 
         assertEquals(2L, response.get(1).getId());
         assertEquals(1L, response.get(1).getProdutoId());
         assertEquals("Produto teste", response.get(1).getProdutoNome());
         assertEquals("Eletrônicos", response.get(1).getCategoriaNome());
-        assertEquals(0, response.get(1).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(3942)));
+        assertEquals(0, response.get(1).getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
+        assertEquals(0, response.get(1).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(3563.06)));
 
         verify(repository, times(1)).findByProduto_Id(1L);
     }
@@ -335,8 +358,10 @@ public class EstrategiaPrecoServiceTest {
     void t13_deveLancarExcecaoAoDeletarEstrategiaPorIdInexistente() {
         when(repository.existsById(1L)).thenReturn(false);
 
-        RecursoNaoEncontradoException exception = assertThrows(RecursoNaoEncontradoException.class,
-                () -> service.deletarEstrategiaPorId(1L));
+        RecursoNaoEncontradoException exception = assertThrows(
+                RecursoNaoEncontradoException.class,
+                () -> service.deletarEstrategiaPorId(1L)
+        );
 
         assertEquals("Nenhuma estrategia de preco encontrada para o id informado", exception.getMessage());
 

@@ -30,10 +30,10 @@ public class EstrategiaPrecoResponseDTO {
     private BigDecimal lucroTotalEstimado;
 
     private Instant dataSimulacao;
-    
+
     private List<String> avisos = new ArrayList<>();
 
-    public static EstrategiaPrecoResponseDTO fromEntity(EstrategiaPreco estrategiaPreco){
+    public static EstrategiaPrecoResponseDTO fromEntity(EstrategiaPreco estrategiaPreco) {
         EstrategiaPrecoResponseDTO dto = new EstrategiaPrecoResponseDTO();
 
         dto.setId(estrategiaPreco.getId());
@@ -42,7 +42,7 @@ public class EstrategiaPrecoResponseDTO {
             dto.setProdutoId(estrategiaPreco.getProduto().getId());
             dto.setProdutoNome(estrategiaPreco.getProduto().getNome());
             dto.setCategoriaNome(estrategiaPreco.getProduto().getCategoria().getNome());
-            dto.setPrecoUnidade(estrategiaPreco.getProduto().getPrecoCusto());
+            dto.setPrecoUnidade(resolverBasePrecoEmReais(estrategiaPreco));
             dto.setDemandaBase(estrategiaPreco.getProduto().getDemandaBase());
         }
 
@@ -57,5 +57,25 @@ public class EstrategiaPrecoResponseDTO {
         dto.setDataSimulacao(estrategiaPreco.getDataSimulacao());
 
         return dto;
+    }
+
+    private static BigDecimal resolverBasePrecoEmReais(EstrategiaPreco estrategiaPreco) {
+        if (estrategiaPreco == null || estrategiaPreco.getProduto() == null) {
+            return BigDecimal.ZERO;
+        }
+
+        if (estrategiaPreco.getProduto().getCustoFinalAquisicao() != null) {
+            return estrategiaPreco.getProduto().getCustoFinalAquisicao();
+        }
+
+        if (estrategiaPreco.getProduto().getPrecoCustoEmReais() != null) {
+            return estrategiaPreco.getProduto().getPrecoCustoEmReais();
+        }
+
+        if (estrategiaPreco.getProduto().getPrecoCusto() != null) {
+            return estrategiaPreco.getProduto().getPrecoCusto();
+        }
+
+        return BigDecimal.ZERO;
     }
 }
