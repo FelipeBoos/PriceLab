@@ -1,12 +1,19 @@
 @if (aberto) {
     <div class="overlay" (click)="onOverlayClick()">
-        <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-box" [style.width]="largura" (click)="$event.stopPropagation()">
 
-            <div class="modal-header">
-                @if (titulo) {
+            @if (titulo) {
+                <div class="modal-header">
                     <h2>{{ titulo }}</h2>
-                }
-            </div>
+
+                    <button type="button" class="modal-close" aria-label="Fechar" (click)="onFechar()">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M18 6L6 18"></path>
+                            <path d="M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            }
 
             <div class="modal-content">
                 <ng-content></ng-content>

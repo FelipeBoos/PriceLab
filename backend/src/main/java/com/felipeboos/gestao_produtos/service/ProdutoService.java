@@ -1,6 +1,7 @@
 package com.felipeboos.gestao_produtos.service;
 
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoRequestDTO;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoCotacaoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoUpdateDTO;
 import com.felipeboos.gestao_produtos.entity.Categoria;
@@ -12,6 +13,7 @@ import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
 import com.felipeboos.gestao_produtos.service.importacao.ImportacaoService;
 import com.felipeboos.gestao_produtos.service.importacao.ResultadoCalculoImportacao;
+import com.felipeboos.gestao_produtos.service.cambio.CambioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +26,24 @@ public class ProdutoService {
     private final ProdutoRepository repository;
     private final CategoriaRepository catRepository;
     private final ImportacaoService importacaoService;
+    private final CambioService cambioService;
 
     public ProdutoService(
             ProdutoRepository repository,
             CategoriaRepository catRepository,
-            ImportacaoService importacaoService
+            ImportacaoService importacaoService,
+            CambioService cambioService
     ) {
         this.repository = repository;
         this.catRepository = catRepository;
         this.importacaoService = importacaoService;
+        this.cambioService = cambioService;
+    }
+
+    @Transactional(readOnly = true)
+    public ProdutoCotacaoResponseDTO buscarCotacaoAtual(Moeda moeda) {
+        Moeda moedaSelecionada = moeda != null ? moeda : Moeda.BRL;
+        return new ProdutoCotacaoResponseDTO(moedaSelecionada, cambioService.obterCotacao(moedaSelecionada));
     }
 
     @Transactional

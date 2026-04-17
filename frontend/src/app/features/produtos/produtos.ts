@@ -1,14 +1,15 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ProdutoService, ProdutoResponse, MoedaEnum } from './services/produto.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from '../categorias/services/categoria.service';
 import { Modal } from '../../shared/components/modal/modal/modal';
+import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-produtos',
   standalone: true,
-  imports: [FormsModule, Modal],
+  imports: [FormsModule, Modal, NgxMaskDirective],
   templateUrl: './produtos.html',
   styleUrl: './produtos.css',
 })
@@ -18,18 +19,90 @@ export class Produtos implements OnInit {
   categoriaId: number | null = null;
   categorias =  signal<CategoriaResponse[]>([]);
   precoCusto: number | null = null;
+  precoCustoInput = '';
   moeda: MoedaEnum = MoedaEnum.BRL;
+  importado = false;
+  remessaConforme = false;
+  freteInternacional = 0;
+  seguroInternacional = 0;
+  aliquotaIcmsImportacao = 0;
   precoVenda: number | null = null;
+  precoVendaInput = '';
   quantidadeEstoque: number | null = null;
   demandaBase: number | null = null;
   fatorElasticidade: number | null = null;
+  cotacaoAtual: number | null = null;
+  custoEmBrlCalculado: number | null = null;
+  carregandoCotacao = false;
 
   produtos = signal<ProdutoResponse[]>([]);
 
   exibirFormulario = false;
   produtoEmEdicaoId: number | null = null;
 
-  constructor(private produtoService: ProdutoService, private categoriaService: CategoriaService) {}
+  get produtoImportado(): boolean {
+    return this.importado;
+  }
+
+  get badgeModalTipoProduto(): 'NACIONAL' | 'IMPORTADO' {
+    return this.produtoImportado ? 'IMPORTADO' : 'NACIONAL';
+  }
+
+  get moedaEstrangeiraSelecionada(): boolean {
+    return this.moeda === MoedaEnum.USD || this.moeda === MoedaEnum.EUR;
+  }
+
+  get codigoMoedaSelecionada(): string {
+    return this.moeda ?? MoedaEnum.BRL;
+  }
+
+  get simboloMoedaSelecionada(): string {
+    if (this.moeda === MoedaEnum.USD) {
+      return '$';
+    }
+
+    if (this.moeda === MoedaEnum.EUR) {
+      return '€';
+    }
+
+    return 'R$';
+  }
+
+  get labelValorMoedaSelecionada(): string {
+    return `Valor em ${this.codigoMoedaSelecionada}`;
+  }
+
+  get placeholderValorMoeda(): string {
+    return this.moeda === MoedaEnum.BRL ? '0,00' : '0.00';
+  }
+
+  get cotacaoAtualFormatada(): string {
+    if (this.cotacaoAtual === null) {
+      return '--';
+    }
+
+    return this.cotacaoAtual.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6,
+    });
+  }
+
+  get custoEmBrlCalculadoFormatado(): string {
+    if (this.custoEmBrlCalculado === null) {
+      return '';
+    }
+
+    return this.custoEmBrlCalculado.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  constructor(
+    private produtoService: ProdutoService,
+    private categoriaService: CategoriaService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     console.log('NgOnInit da página produtos');
@@ -47,6 +120,22 @@ export class Produtos implements OnInit {
         console.error('Erro ao listar produtos', erro);
       }
     });
+  }
+
+  onMoedaChange(): void {
+    this.sincronizarPrecoCustoInput();
+    this.atualizarCotacaoPreview();
+  }
+
+  onPrecoCustoInputChange(valor: string): void {
+    this.precoCustoInput = valor ?? '';
+    this.precoCusto = this.parseValorMonetarioMascara(this.precoCustoInput, this.moedaEstrangeiraSelecionada);
+    this.atualizarCustoEmBrlCalculado();
+  }
+
+  onPrecoVendaInputChange(valor: string): void {
+    this.precoVendaInput = valor ?? '';
+    this.precoVenda = this.parseValorMonetarioMascara(this.precoVendaInput, false);
   }
 
   botaoSalvar() {
@@ -68,6 +157,11 @@ export class Produtos implements OnInit {
       categoriaId: this.categoriaId,
       precoCusto: this.precoCusto,
       moeda: this.moeda,
+      importado: this.importado,
+      remessaConforme: this.remessaConforme,
+      freteInternacional: this.freteInternacional,
+      seguroInternacional: this.seguroInternacional,
+      aliquotaIcmsImportacao: this.aliquotaIcmsImportacao,
       precoVenda: this.precoVenda,
       quantidadeEstoque: this.quantidadeEstoque,
       demandaBase: this.demandaBase,
@@ -120,10 +214,20 @@ export class Produtos implements OnInit {
     this.categoriaId = produto.categoriaId;
     this.precoCusto = produto.precoCusto;
     this.moeda = produto.moeda ?? MoedaEnum.BRL;
+    this.importado = produto.importado ?? false;
+    this.remessaConforme = produto.remessaConforme ?? false;
+    this.freteInternacional = produto.freteInternacional ?? 0;
+    this.seguroInternacional = produto.seguroInternacional ?? 0;
+    this.aliquotaIcmsImportacao = produto.aliquotaIcmsImportacao ?? 0;
     this.precoVenda = produto.precoVenda;
     this.quantidadeEstoque = produto.quantidadeEstoque;
     this.demandaBase = produto.demandaBase ?? null;
     this.fatorElasticidade = produto.fatorElasticidade ?? null;
+    this.cotacaoAtual = produto.cotacaoMoeda ?? (this.moeda === MoedaEnum.BRL ? 1 : null);
+    this.custoEmBrlCalculado = produto.precoCustoEmReais ?? null;
+    this.sincronizarCamposMonetarios();
+
+    this.atualizarCotacaoPreview();
 
     this.exibirFormulario = true;
     this.produtoEmEdicaoId = id;
@@ -158,11 +262,21 @@ export class Produtos implements OnInit {
     this.descricao = '';
     this.categoriaId = null;
     this.precoCusto = null;
+    this.precoCustoInput = '';
     this.moeda = MoedaEnum.BRL;
+    this.importado = false;
+    this.remessaConforme = false;
+    this.freteInternacional = 0;
+    this.seguroInternacional = 0;
+    this.aliquotaIcmsImportacao = 0;
     this.precoVenda = null;
+    this.precoVendaInput = '';
     this.quantidadeEstoque = null;
     this.demandaBase = null;
     this.fatorElasticidade = null;
+    this.cotacaoAtual = null;
+    this.custoEmBrlCalculado = null;
+    this.carregandoCotacao = false;
     this.produtoEmEdicaoId = null;
     this.exibirFormulario = false;
   }
@@ -176,5 +290,77 @@ export class Produtos implements OnInit {
         console.error('Erro ao carregar categorias:', erro);
       }
     })
+  }
+
+  private atualizarCotacaoPreview(): void {
+    if (!this.moedaEstrangeiraSelecionada) {
+      this.cotacaoAtual = 1;
+      this.carregandoCotacao = false;
+      this.atualizarCustoEmBrlCalculado();
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.carregandoCotacao = true;
+    this.cdr.detectChanges();
+    this.produtoService.buscarCotacaoAtual(this.moeda).subscribe({
+      next: (resposta) => {
+        this.cotacaoAtual = resposta.cotacao;
+        this.atualizarCustoEmBrlCalculado();
+        this.carregandoCotacao = false;
+        this.cdr.detectChanges();
+      },
+      error: (erro: HttpErrorResponse) => {
+        console.error('Erro ao carregar cotação atual:', erro);
+        this.cotacaoAtual = null;
+        this.custoEmBrlCalculado = null;
+        this.carregandoCotacao = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private atualizarCustoEmBrlCalculado(): void {
+    if (this.precoCusto === null || this.precoCusto <= 0 || this.cotacaoAtual === null || this.cotacaoAtual <= 0) {
+      this.custoEmBrlCalculado = null;
+      return;
+    }
+
+    this.custoEmBrlCalculado = this.precoCusto * this.cotacaoAtual;
+  }
+
+  private formatarMoeda(valor: number, formatoEstrangeiro: boolean): string {
+    const locale = formatoEstrangeiro ? 'en-US' : 'pt-BR';
+    return valor.toLocaleString(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  private parseValorMonetarioMascara(valor: string, formatoEstrangeiro: boolean): number | null {
+    const texto = (valor ?? '').trim();
+    if (!texto) {
+      return null;
+    }
+
+    const separadorMilhar = formatoEstrangeiro ? ',' : '.';
+    const separadorDecimal = formatoEstrangeiro ? '.' : ',';
+
+    const semMilhar = texto.split(separadorMilhar).join('');
+    const normalizado = semMilhar.replace(separadorDecimal, '.');
+    const numero = Number.parseFloat(normalizado);
+
+    return Number.isFinite(numero) ? numero : null;
+  }
+
+  private sincronizarCamposMonetarios(): void {
+    this.sincronizarPrecoCustoInput();
+    this.precoVendaInput = this.precoVenda !== null ? this.formatarMoeda(this.precoVenda, false) : '';
+  }
+
+  private sincronizarPrecoCustoInput(): void {
+    this.precoCustoInput = this.precoCusto !== null
+      ? this.formatarMoeda(this.precoCusto, this.moedaEstrangeiraSelecionada)
+      : '';
   }
 }

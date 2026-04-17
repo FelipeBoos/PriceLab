@@ -11,6 +11,7 @@ export class Modal {
   @Input() aberto = false;
   @Input() titulo = '';
   @Input() fecharAoClicarFora = true;
+  @Input() largura = 'min(720px, 100%)';
 
   @Output() fechar = new EventEmitter<void>();
 
