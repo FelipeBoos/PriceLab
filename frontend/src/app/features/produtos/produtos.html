@@ -146,7 +146,7 @@
                     </div>
 
                     <label class="switch" aria-label="Produto importado">
-                        <input type="checkbox" [(ngModel)]="importado" name="produtoImportado">
+                        <input type="checkbox" [(ngModel)]="importado" (ngModelChange)="onImportadoChange()" name="produtoImportado">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -165,7 +165,7 @@
                             <label for="custoEmBrlCalculado">Custo em BRL (calculado)</label>
                             <div class="input-prefixado">
                                 <span>R$</span>
-                                <input id="custoEmBrlCalculado" type="text" [value]="custoEmBrlCalculadoFormatado" placeholder="0,00" readonly>
+                                <input id="custoEmBrlCalculado" type="text" [value]="custoEmBrlCalculadoFormatado" readonly>
                             </div>
                         </div>
                     </div>
@@ -185,6 +185,73 @@
                             <input id="precoCusto" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoCustoInput" (ngModelChange)="onPrecoCustoInputChange($event)" name="precoCusto" [required]="true">
                         </div>
                     </div>
+                }
+
+                @if (importado) {
+                    <section class="importacao-extra-card">
+                        <h3>Custos de importação</h3>
+
+                        <div class="importacao-grid">
+                            <div class="campo">
+                                <label for="freteInternacional">Frete internacional</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="freteInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="freteInternacionalInput" (ngModelChange)="onFreteInternacionalInputChange($event)" name="freteInternacional">
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="seguroInternacional">Seguro internacional</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="seguroInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="seguroInternacionalInput" (ngModelChange)="onSeguroInternacionalInputChange($event)" name="seguroInternacional">
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="aliquotaIcmsImportacao">Alíquota ICMS (%)</label>
+                                <input id="aliquotaIcmsImportacao" type="number" step="0.01" min="0" [ngModel]="aliquotaIcmsImportacao" (ngModelChange)="onAliquotaIcmsImportacaoChange($event)" name="aliquotaIcmsImportacao">
+                            </div>
+
+                            <div class="campo campo-remessa-conforme">
+                                <label for="remessaConforme">Remessa conforme</label>
+                                <label class="switch" aria-label="Remessa conforme">
+                                    <input id="remessaConforme" type="checkbox" [(ngModel)]="remessaConforme" (ngModelChange)="onRemessaConformeChange()" name="remessaConforme">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="resumo-custos-card">
+                        <h3>Resumo de custos</h3>
+
+                        <div class="resumo-custos-grid">
+                            <div class="campo">
+                                <label for="impostoImportacaoResumo">Imposto de importação</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="impostoImportacaoResumo" type="text" [value]="impostoImportacaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="icmsImportacaoResumo">ICMS de importação</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="icmsImportacaoResumo" type="text" [value]="icmsImportacaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+
+                            <div class="campo campo-custo-final-destaque">
+                                <label for="custoFinalAquisicaoResumo">{{ labelCustoFinalAquisicao }}</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="custoFinalAquisicaoResumo" type="text" [value]="custoFinalAquisicaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 }
 
                 <div class="campo preco-venda-campo">

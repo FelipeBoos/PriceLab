@@ -45,6 +45,9 @@ export interface ProdutoResponse {
   freteInternacional?: number;
   seguroInternacional?: number;
   aliquotaIcmsImportacao?: number;
+  impostoImportacao?: number;
+  icmsImportacao?: number;
+  custoFinalAquisicao?: number;
   precoVenda: number;
   quantidadeEstoque: number;
   demandaBase?: number;

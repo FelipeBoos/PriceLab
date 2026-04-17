@@ -249,6 +249,7 @@
     width: 44px;
     height: 24px;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .switch input {
@@ -262,7 +263,7 @@
     inset: 0;
     border-radius: 999px;
     background: #e5e7eb;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .slider::before {
@@ -280,6 +281,10 @@
 
 .switch input:checked + .slider {
     background: #2f78e7;
+}
+
+.switch:hover .slider {
+    box-shadow: 0 0 0 3px rgba(47, 120, 231, 0.2);
 }
 
 .switch input:checked + .slider::before {
@@ -319,6 +324,66 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+}
+
+.importacao-extra-card,
+.resumo-custos-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 12px;
+    border: 1px solid #dfe6f1;
+    padding: 12px;
+}
+
+.importacao-extra-card {
+    background: #ffffff;
+}
+
+.resumo-custos-card {
+    background: #eef4fc;
+}
+
+.importacao-extra-card h3,
+.resumo-custos-card h3 {
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #5f6d82;
+    font-weight: 800;
+}
+
+.importacao-grid,
+.resumo-custos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.campo-remessa-conforme {
+    justify-content: center;
+}
+
+.campo-remessa-conforme .switch {
+    margin-top: 2px;
+}
+
+.resumo-custos-card .input-prefixado input {
+    background: #ffffff;
+    color: #4d5a6d;
+    font-weight: 700;
+}
+
+.campo-custo-final-destaque {
+    grid-column: 1 / 2;
+}
+
+.campo-custo-final-destaque .input-prefixado input {
+    border-color: #6b9cf0;
+    box-shadow: 0 0 0 2px rgba(63, 116, 216, 0.12);
+    color: #2e4d88;
+    font-weight: 800;
 }
 
 .campo-calculado .input-prefixado input {
@@ -393,6 +458,11 @@
     }
 
     .valores-cotacao-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .importacao-grid,
+    .resumo-custos-grid {
         grid-template-columns: 1fr;
     }
 

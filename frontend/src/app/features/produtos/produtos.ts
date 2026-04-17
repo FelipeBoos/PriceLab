@@ -24,7 +24,9 @@ export class Produtos implements OnInit {
   importado = false;
   remessaConforme = false;
   freteInternacional = 0;
+  freteInternacionalInput = '';
   seguroInternacional = 0;
+  seguroInternacionalInput = '';
   aliquotaIcmsImportacao = 0;
   precoVenda: number | null = null;
   precoVendaInput = '';
@@ -72,10 +74,6 @@ export class Produtos implements OnInit {
     return `Valor em ${this.codigoMoedaSelecionada}`;
   }
 
-  get placeholderValorMoeda(): string {
-    return this.moeda === MoedaEnum.BRL ? '0,00' : '0.00';
-  }
-
   get cotacaoAtualFormatada(): string {
     if (this.cotacaoAtual === null) {
       return '--';
@@ -92,7 +90,120 @@ export class Produtos implements OnInit {
       return '';
     }
 
-    return this.custoEmBrlCalculado.toLocaleString('pt-BR', {
+    return this.formatarMoeda(this.custoEmBrlCalculado, false);
+  }
+
+  get impostoImportacaoCalculado(): number {
+    if (!this.importado || this.custoEmBrlCalculado === null) {
+      return 0;
+    }
+
+    return this.arredondarMoeda(this.baseCalculoImportacao * 0.6);
+  }
+
+  get icmsImportacaoCalculado(): number {
+    if (!this.importado || this.custoEmBrlCalculado === null) {
+      return 0;
+    }
+
+    const aliquotaFracao = this.normalizarNumero(this.aliquotaIcmsImportacao) / 100;
+    return this.arredondarMoeda((this.baseCalculoImportacao + this.impostoImportacaoCalculado) * aliquotaFracao);
+  }
+
+  get custoFinalAquisicaoCalculado(): number {
+    if (this.custoEmBrlCalculado === null) {
+      return 0;
+    }
+
+    if (!this.importado) {
+      return this.arredondarMoeda(this.custoEmBrlCalculado);
+    }
+
+    return this.arredondarMoeda(this.baseCalculoImportacao + this.impostoImportacaoCalculado + this.icmsImportacaoCalculado);
+  }
+
+  get impostoImportacaoCalculadoFormatado(): string {
+    return this.formatarMoeda(this.impostoImportacaoCalculado, false);
+  }
+
+  get icmsImportacaoCalculadoFormatado(): string {
+    return this.formatarMoeda(this.icmsImportacaoCalculado, false);
+  }
+
+  get custoFinalAquisicaoCalculadoFormatado(): string {
+    return this.formatarMoeda(this.custoFinalAquisicaoCalculado, false);
+  }
+
+  get labelCustoFinalAquisicao(): string {
+    return this.importado
+      ? 'Custo final de aquisição (com importação)'
+      : 'Custo final de aquisição';
+  }
+
+  private get baseCalculoImportacao(): number {
+    if (this.custoEmBrlCalculado === null) {
+      return 0;
+    }
+
+    return this.arredondarMoeda(
+      this.custoEmBrlCalculado + this.normalizarNumero(this.freteInternacional) + this.normalizarNumero(this.seguroInternacional)
+    );
+  }
+
+  private arredondarMoeda(valor: number): number {
+    return Math.round((valor + Number.EPSILON) * 100) / 100;
+  }
+
+  private normalizarNumero(valor: number | null | undefined): number {
+    return Number.isFinite(valor as number) ? Math.max(valor as number, 0) : 0;
+  }
+
+  onImportadoChange(): void {
+    this.aliquotaIcmsImportacao = this.normalizarNumero(this.aliquotaIcmsImportacao);
+    this.cdr.detectChanges();
+  }
+
+  onFreteInternacionalInputChange(valor: string): void {
+    this.freteInternacionalInput = valor ?? '';
+    const numero = this.parseValorMonetarioMascara(this.freteInternacionalInput, false);
+    this.freteInternacional = numero ?? 0;
+  }
+
+  onSeguroInternacionalInputChange(valor: string): void {
+    this.seguroInternacionalInput = valor ?? '';
+    const numero = this.parseValorMonetarioMascara(this.seguroInternacionalInput, false);
+    this.seguroInternacional = numero ?? 0;
+  }
+
+  onAliquotaIcmsImportacaoChange(valor: number | null): void {
+    this.aliquotaIcmsImportacao = this.normalizarNumero(valor);
+  }
+
+  onRemessaConformeChange(): void {
+    this.cdr.detectChanges();
+  }
+
+  private formatarValorMonetarioEntrada(valor: number): string {
+    if (!valor || valor <= 0) {
+      return '';
+    }
+
+    return this.formatarMoeda(valor, false);
+  }
+
+  private sincronizarCamposImportacao(): void {
+    this.freteInternacionalInput = this.formatarValorMonetarioEntrada(this.freteInternacional);
+    this.seguroInternacionalInput = this.formatarValorMonetarioEntrada(this.seguroInternacional);
+  }
+
+  private limparImportacaoVisual(): void {
+    this.freteInternacionalInput = '';
+    this.seguroInternacionalInput = '';
+  }
+
+  private formatarMoeda(valor: number, formatoEstrangeiro: boolean): string {
+    const locale = formatoEstrangeiro ? 'en-US' : 'pt-BR';
+    return valor.toLocaleString(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -226,6 +337,7 @@ export class Produtos implements OnInit {
     this.cotacaoAtual = produto.cotacaoMoeda ?? (this.moeda === MoedaEnum.BRL ? 1 : null);
     this.custoEmBrlCalculado = produto.precoCustoEmReais ?? null;
     this.sincronizarCamposMonetarios();
+    this.sincronizarCamposImportacao();
 
     this.atualizarCotacaoPreview();
 
@@ -277,6 +389,7 @@ export class Produtos implements OnInit {
     this.cotacaoAtual = null;
     this.custoEmBrlCalculado = null;
     this.carregandoCotacao = false;
+    this.limparImportacaoVisual();
     this.produtoEmEdicaoId = null;
     this.exibirFormulario = false;
   }
@@ -321,20 +434,23 @@ export class Produtos implements OnInit {
   }
 
   private atualizarCustoEmBrlCalculado(): void {
-    if (this.precoCusto === null || this.precoCusto <= 0 || this.cotacaoAtual === null || this.cotacaoAtual <= 0) {
+    if (this.precoCusto === null || this.precoCusto <= 0) {
+      this.custoEmBrlCalculado = null;
+      return;
+    }
+
+    if (!this.moedaEstrangeiraSelecionada) {
+      this.cotacaoAtual = 1;
+      this.custoEmBrlCalculado = this.precoCusto;
+      return;
+    }
+
+    if (this.cotacaoAtual === null || this.cotacaoAtual <= 0) {
       this.custoEmBrlCalculado = null;
       return;
     }
 
     this.custoEmBrlCalculado = this.precoCusto * this.cotacaoAtual;
-  }
-
-  private formatarMoeda(valor: number, formatoEstrangeiro: boolean): string {
-    const locale = formatoEstrangeiro ? 'en-US' : 'pt-BR';
-    return valor.toLocaleString(locale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
   }
 
   private parseValorMonetarioMascara(valor: string, formatoEstrangeiro: boolean): number | null {
