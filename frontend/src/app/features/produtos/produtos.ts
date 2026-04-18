@@ -41,6 +41,8 @@ export class Produtos implements OnInit {
 
   exibirFormulario = false;
   produtoEmEdicaoId: number | null = null;
+  mensagemToastSucesso: string | null = null;
+  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   get produtoImportado(): boolean {
     return this.importado;
@@ -138,6 +140,28 @@ export class Produtos implements OnInit {
     return this.importado
       ? 'Custo final de aquisição (com importação)'
       : 'Custo final de aquisição';
+  }
+
+  private exibirToastSucesso(mensagem: string): void {
+    this.mensagemToastSucesso = mensagem;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+    }
+
+    this.toastSucessoTimeoutId = setTimeout(() => {
+      this.mensagemToastSucesso = null;
+      this.toastSucessoTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToastSucesso(): void {
+    this.mensagemToastSucesso = null;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
   }
 
   formatarCustoOrigem(produto: ProdutoResponse): string {
@@ -327,7 +351,7 @@ export class Produtos implements OnInit {
         .cadastrarProduto(produto)
         .subscribe({
           next: () => {
-            alert('Produto cadastrado com sucesso');
+            this.exibirToastSucesso('Produto cadastrado com sucesso.');
             this.resetarFormulario();
             this.carregarProdutos();
           }

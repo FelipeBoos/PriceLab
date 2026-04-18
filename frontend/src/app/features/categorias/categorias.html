@@ -1,4 +1,28 @@
 <section class="page">
+    @if (mensagemToastSucesso; as mensagem) {
+    <div class="avisos-container">
+        <div class="aviso-item aviso-sucesso">
+            <span class="aviso-icone" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+            </span>
+
+            <div class="aviso-texto">
+                <span class="aviso-titulo">Sucesso</span>
+                <span>{{ mensagem }}</span>
+            </div>
+
+            <button type="button" class="aviso-close" (click)="fecharToastSucesso()" aria-label="Fechar aviso">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"></path>
+                    <path d="M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    }
+
     <h1>Categorias</h1>
 
     <div class="actions">
