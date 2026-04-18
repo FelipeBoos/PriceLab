@@ -19,17 +19,15 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Preço Custo</th>
-                    <th>Preço Venda</th>
-                    <th>Quantidade em estoque</th>
-                    <th>Demanda Base</th>
-                    <th>Fator Elasticidade</th>
-                    <th></th>
-                    <th></th>
+                    <th class="col-num">ID</th>
+                    <th class="col-text">Nome</th>
+                    <th class="col-text">Categoria</th>
+                    <th class="col-text">Origem</th>
+                    <th class="col-num">Custo origem</th>
+                    <th class="col-custo-final col-num">Custo final aquisição</th>
+                    <th class="col-num">Preço venda</th>
+                    <th class="col-num">Estoque</th>
+                    <th class="col-actions">Ações</th>
                 </tr>
             </thead>
         
@@ -37,16 +35,16 @@
             <tbody>
                 @for (produto of produtos(); track produto.id) {
                     <tr>
-                        <td>{{ produto.id }} </td>
-                        <td>{{ produto.nome }}</td>
-                        <td>{{ produto.descricao }}</td>
-                        <td>{{ produto.categoriaNome }}</td>
-                        <td>{{ produto.precoCusto }}</td>
-                        <td>{{ produto.precoVenda }}</td>
-                        <td>{{ produto.quantidadeEstoque }}</td>
-                        <td>{{ produto.demandaBase }}</td>
-                        <td>{{ produto.fatorElasticidade }}</td>
-                        <td>
+                        <td class="col-num">{{ produto.id }} </td>
+                        <td class="col-text">{{ produto.nome }}</td>
+                        <td class="col-text">{{ produto.categoriaNome }}</td>
+                        <td class="col-text">{{ produto.importado ? 'Importado' : 'Nacional' }}</td>
+                        <td class="col-num">{{ formatarCustoOrigem(produto) }}</td>
+                        <td class="col-custo-final col-num">{{ formatarCustoFinalAquisicao(produto) }}</td>
+                        <td class="col-num">{{ formatarPrecoVenda(produto.precoVenda) }}</td>
+                        <td class="col-num">{{ produto.quantidadeEstoque }}</td>
+                        <td class="col-actions">
+                            <div class="acoes-produto">
                             <button class="btn btn-secondary btn-circle btn-action" type="button" title="Editar" aria-label="Editar" (click)="editarProduto(produto.id)">
                                 <span class="btn-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -55,8 +53,6 @@
                                     </svg>
                                 </span>
                             </button>
-                        </td>
-                        <td>
                             <button class="btn btn-secondary btn-circle btn-action" type="button" title="Deletar" aria-label="Deletar" (click)="deletarProduto(produto.id)">
                                 <span class="btn-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -68,6 +64,7 @@
                                     </svg>
                                 </span>
                             </button>
+                            </div>
                         </td>
                     </tr>
                 }    

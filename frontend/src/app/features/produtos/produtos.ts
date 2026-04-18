@@ -140,6 +140,48 @@ export class Produtos implements OnInit {
       : 'Custo final de aquisição';
   }
 
+  formatarCustoOrigem(produto: ProdutoResponse): string {
+    const valor = produto.precoCusto ?? 0;
+    const moeda = produto.moeda ?? MoedaEnum.BRL;
+
+    if (moeda === MoedaEnum.USD) {
+      return `US$ ${valor.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+
+    if (moeda === MoedaEnum.EUR) {
+      return `€ ${valor.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    }
+
+    return `R$ ${valor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
+
+  formatarCustoFinalAquisicao(produto: ProdutoResponse): string {
+    const valor = produto.custoFinalAquisicao ?? produto.precoCustoEmReais ?? 0;
+
+    return `R$ ${valor.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
+
+  formatarPrecoVenda(valor: number | null | undefined): string {
+    const valorTratado = valor ?? 0;
+
+    return `R$ ${valorTratado.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
+
   private get baseCalculoImportacao(): number {
     if (this.custoEmBrlCalculado === null) {
       return 0;

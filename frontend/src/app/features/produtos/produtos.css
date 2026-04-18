@@ -423,6 +423,33 @@
     font-size: 9px;
 }
 
+.table-container.produtos .data-table th.col-text,
+.table-container.produtos .data-table td.col-text {
+    text-align: left;
+}
+
+.table-container.produtos .data-table th.col-num,
+.table-container.produtos .data-table td.col-num {
+    text-align: right;
+}
+
+.table-container.produtos .data-table th.col-actions,
+.table-container.produtos .data-table td.col-actions {
+    text-align: center;
+}
+
+.acoes-produto {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.col-custo-final {
+    font-weight: 800;
+    color: #23457f;
+}
+
 .produto-modal-footer {
     position: sticky;
     bottom: 0;
