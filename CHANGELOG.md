@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/FelipeBoos/PriceLab/compare/v1.1.0...v1.2.0) (2026-04-18)
+
+
+### Features
+
+* add currency exchange and import cost support ([b1c7fb7](https://github.com/FelipeBoos/PriceLab/commit/b1c7fb7679b6aecc723f0e486f686e7f6b8068f0))
+* **backend:** complete Frankfurter external API implementation for exchange rate service ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([527e61f](https://github.com/FelipeBoos/PriceLab/commit/527e61f62f81457334a4d6121d055bddaf5ab9ea))
+* **entity:** add importation fields to Produto entity and update repository tests ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([3afb4f6](https://github.com/FelipeBoos/PriceLab/commit/3afb4f65866c3c226cba1ee5a4eaf0761d8a87cf))
+* **importacao:** create import cost calculation service ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([c764f56](https://github.com/FelipeBoos/PriceLab/commit/c764f56cc45ffcb9a59c2d08b28d45dc476ceb5f))
+* **produto/db:** add import cost fields to produtos table ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([777eec2](https://github.com/FelipeBoos/PriceLab/commit/777eec207121d6adfe77c5a03fa22fbc8fd0d6e9))
+* **produto:** add importation inputs and cost summary to product form ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([5930cdf](https://github.com/FelipeBoos/PriceLab/commit/5930cdfcca4e64bfb563e2840e3efaa58dd66bc1))
+* **produto:** support importation fields in DTOs, service and controller tests ([#5](https://github.com/FelipeBoos/PriceLab/issues/5)) ([c571d46](https://github.com/FelipeBoos/PriceLab/commit/c571d469a7a7ff0bf86651fcd93a8f150a1ecb1a))
+
+
+### Bug Fixes
+
+* **ui:** adjust category form layout and improve product form responsiveness ([340b42a](https://github.com/FelipeBoos/PriceLab/commit/340b42a37bc4896e53a15acec1008fe86a00f973))
+
 ## [1.1.0](https://github.com/FelipeBoos/PriceLab/compare/v1.0.1...v1.1.0) (2026-04-10)
 
 
