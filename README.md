@@ -1,31 +1,43 @@
 # 📊 PriceLab
 
-> PriceLab é um sistema fullstack de gestão de produtos que permite cadastrar produtos e categorias, simular estratégias de precificação com base em margem de lucro, impostos e elasticidade de demanda, e visualizar a composição financeira de cada produto.
+> PriceLab é um sistema fullstack de gestão de produtos com suporte a múltiplas moedas e cálculo automático de custos de importação, permitindo simular estratégias de precificação com base em margem, impostos e elasticidade de demanda.
 
 Desenvolvido por **Felipe Boos**
 
 ---
 
-### Estratégias de Preço — simulação
+## Estratégias de Preço 
+
+### Simulação de estratégias de preço
 ![Simular Estratégia](docs/screenshots/estrategias-simular.gif)
 
-### Estratégias de Preço — listagem
+### Listagem de estratégias de preço
 ![Estratégias de Preço](docs/screenshots/estrategias-lista.png)
 
-### Produtos
-![Produtos](docs/screenshots/produtos.png)
+## Produtos
 
-### Categorias
+###  Cadastro de Produtos
+![Produtos](docs/screenshots/produtos_cadastro.png)
+
+###  Fluxo de Cadastro (com cálculo automático)
+![Produtos](docs/screenshots/produtos_cadastro_video.gif)
+
+### Listagem de produtos
+![Produtos](docs/screenshots/produtos_listagem.png)
+
+## Categorias
+
+### Listagem de categorias
 ![Categorias](docs/screenshots/categorias.png)
 
 ---
 
-## 🛠️ Stack
+## Stack
 
 ### Backend
 | Tecnologia | Uso |
 |---|---|
-| Java 17 | Linguagem principal |
+| Java 21 | Linguagem principal |
 | Spring Boot | Framework web |
 | Spring Web | API REST |
 | Spring Data JPA | Persistência de dados |
@@ -45,6 +57,39 @@ Desenvolvido por **Felipe Boos**
 | Tecnologia | Uso |
 |---|---|
 | GitHub Actions | CI/CD com workflow de testes automatizados |
+
+---
+
+## 🧠 Decisões Técnicas
+
+Algumas escolhas do projeto foram feitas com foco em escalabilidade, organização e boas práticas de desenvolvimento.
+
+### 🌍 Suporte a múltiplas moedas
+
+Produtos podem ser cadastrados em BRL, USD ou EUR, com conversão automática para reais.
+
+**Motivação:**
+- Simular cenários reais de importação
+- Permitir análise financeira mais completa
+- Desacoplar moeda de origem do custo final
+
+### 📦 Flyway — Versionamento do Banco de Dados
+
+Utilizei o Flyway para versionamento das migrations do banco de dados.
+
+**Motivação:**
+- Garantir controle de versão do schema
+- Evitar inconsistência entre ambientes
+- Facilitar evolução do banco de forma segura
+
+### Versionamento Semântico Automatizado (GitHub Actions)
+
+O versionamento do projeto é realizado automaticamente utilizando GitHub Actions com base em versionamento semântico.
+
+**Motivação:**
+- Padronizar a evolução das versões do projeto
+- Evitar versionamento manual e erros humanos
+- Gerar histórico claro de mudanças (features, correções, refactors)
 
 ---
 
@@ -104,7 +149,7 @@ Aplicação disponível em: `http://localhost:4200`
 
 Os testes unitários rodam com JUnit 5 e são executados automaticamente no pipeline de CI via GitHub Actions a cada push.
 
-Para rodar localmente:
+Como rodar localmente:
 
 ```bash
 cd backend
@@ -125,16 +170,16 @@ Arquivo de configuração: `.github/workflows/tests.yml`
 
 ```
 pricelab/
-├── backend/           # API REST — Spring Boot
+├── backend/  
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/       # Código-fonte Java
+│   │   │   ├── java/       
 │   │   │   └── resources/
-│   │   │       ├── db/migration/   # Migrations Flyway
+│   │   │       ├── db/migration/  
 │   │   │       └── application.properties
-│   │   └── test/           # Testes JUnit
+│   │   └── test/        
 │   └── pom.xml
-├── frontend/          # SPA — Angular
+├── frontend/          
 │   ├── src/
 │   │   └── app/
 │   └── package.json
@@ -152,6 +197,7 @@ pricelab/
 | CRUD de Categorias | ✅ Concluído |
 | CRUD de Produtos | ✅ Concluído |
 | Simulação de Estratégias de Preço | ✅ Concluído |
+| Importação e Moeda | ✅ Concluído |
 | Integração Angular + REST API | ✅ Concluído |
 | GitHub Actions (CI com testes) | ✅ Concluído |
 | Testes unitários (JUnit) | ✅ Concluído |

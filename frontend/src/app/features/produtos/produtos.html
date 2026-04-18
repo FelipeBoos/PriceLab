@@ -1,4 +1,28 @@
 <section class="page">
+    @if (mensagemToastSucesso; as mensagem) {
+        <div class="avisos-container">
+            <div class="aviso-item aviso-sucesso">
+                <span class="aviso-icone" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5"></path>
+                    </svg>
+                </span>
+
+                <div class="aviso-texto">
+                    <span class="aviso-titulo">Sucesso</span>
+                    <span>{{ mensagem }}</span>
+                </div>
+
+                <button type="button" class="aviso-close" (click)="fecharToastSucesso()" aria-label="Fechar aviso">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    }
+
     <h1>Produtos</h1>
 
     <div class="actions">
@@ -19,17 +43,15 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Preço Custo</th>
-                    <th>Preço Venda</th>
-                    <th>Quantidade em estoque</th>
-                    <th>Demanda Base</th>
-                    <th>Fator Elasticidade</th>
-                    <th></th>
-                    <th></th>
+                    <th class="col-num">ID</th>
+                    <th class="col-text">Nome</th>
+                    <th class="col-text">Categoria</th>
+                    <th class="col-text">Origem</th>
+                    <th class="col-num">Custo origem</th>
+                    <th class="col-custo-final col-num">Custo final aquisição</th>
+                    <th class="col-num">Preço venda</th>
+                    <th class="col-num">Estoque</th>
+                    <th class="col-actions">Ações</th>
                 </tr>
             </thead>
         
@@ -37,16 +59,16 @@
             <tbody>
                 @for (produto of produtos(); track produto.id) {
                     <tr>
-                        <td>{{ produto.id }} </td>
-                        <td>{{ produto.nome }}</td>
-                        <td>{{ produto.descricao }}</td>
-                        <td>{{ produto.categoriaNome }}</td>
-                        <td>{{ produto.precoCusto }}</td>
-                        <td>{{ produto.precoVenda }}</td>
-                        <td>{{ produto.quantidadeEstoque }}</td>
-                        <td>{{ produto.demandaBase }}</td>
-                        <td>{{ produto.fatorElasticidade }}</td>
-                        <td>
+                        <td class="col-num">{{ produto.id }} </td>
+                        <td class="col-text">{{ produto.nome }}</td>
+                        <td class="col-text">{{ produto.categoriaNome }}</td>
+                        <td class="col-text">{{ produto.importado ? 'Importado' : 'Nacional' }}</td>
+                        <td class="col-num">{{ formatarCustoOrigem(produto) }}</td>
+                        <td class="col-custo-final col-num">{{ formatarCustoFinalAquisicao(produto) }}</td>
+                        <td class="col-num">{{ formatarPrecoVenda(produto.precoVenda) }}</td>
+                        <td class="col-num">{{ produto.quantidadeEstoque }}</td>
+                        <td class="col-actions">
+                            <div class="acoes-produto">
                             <button class="btn btn-secondary btn-circle btn-action" type="button" title="Editar" aria-label="Editar" (click)="editarProduto(produto.id)">
                                 <span class="btn-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -55,8 +77,6 @@
                                     </svg>
                                 </span>
                             </button>
-                        </td>
-                        <td>
                             <button class="btn btn-secondary btn-circle btn-action" type="button" title="Deletar" aria-label="Deletar" (click)="deletarProduto(produto.id)">
                                 <span class="btn-icon" aria-hidden="true">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -68,6 +88,7 @@
                                     </svg>
                                 </span>
                             </button>
+                            </div>
                         </td>
                     </tr>
                 }    
@@ -78,71 +99,217 @@
 
 </section>
 
-<app-modal [aberto]="exibirFormulario" [titulo]="produtoEmEdicaoId === null ? 'Novo Produto' : 'Editar Produto'"
-    (fechar)="resetarFormulario()"
->
-    <form (ngSubmit)="botaoSalvar()">
-        <div>
-            <label for="nome">Nome</label>
-            <input id="nome" type="text" [(ngModel)]="nome" name="nome">
-        </div>
+<app-modal
+    [aberto]="exibirFormulario"
+    [titulo]="''"
+    [largura]="'min(calc(clamp(781px, 86vh, 980px) * 0.7324), 92vw)'"
+    [altura]="'clamp(781px, 86vh, 980px)'"
+    (fechar)="resetarFormulario()">
+    <form class="produto-modal-form" (ngSubmit)="botaoSalvar()">
+        <header class="produto-modal-header">
+            <div class="produto-modal-header-texto">
+                <div class="produto-modal-titulo-linha">
+                    <h2>{{ produtoEmEdicaoId === null ? 'Cadastrar Novo Produto' : 'Editar Produto' }}</h2>
+                    <span class="tipo-badge">{{ badgeModalTipoProduto }}</span>
+                </div>
+                <p>Preencha as informações técnicas e financeiras do item.</p>
+            </div>
 
-        <div>
-            <label for="descricao">Descrição</label>
-            <input id="descricao" type="text" [(ngModel)]="descricao" name="descricao">
-        </div>
+            <button type="button" class="produto-modal-fechar" aria-label="Fechar" (click)="resetarFormulario()">×</button>
+        </header>
 
-        <div>
-            <label for="categoria">Categoria</label>
-            <select name="categoriaId" [(ngModel)]="categoriaId" id="categoriaId" required>
-                <option [ngValue]="null">Selecione uma categoria</option>
-                            
-                @for (categoria of categorias(); track categoria.id) {
-                    <option [ngValue]="categoria.id">
-                        {{ categoria.nome }}
-                    </option>
+        <div class="produto-modal-scroll">
+            <div class="campo">
+                <label for="nome">Nome do produto</label>
+                <input id="nome" type="text" [(ngModel)]="nome" name="nome" placeholder="Ex: Cadeira Ergonômica Pro">
+            </div>
+
+            <div class="campo">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" rows="3" [(ngModel)]="descricao" name="descricao" placeholder="Detalhes sobre o material, dimensões e especificações..."></textarea>
+            </div>
+
+            <div class="campo">
+                <label for="categoriaId">Categoria</label>
+                <select name="categoriaId" [(ngModel)]="categoriaId" id="categoriaId" required>
+                    <option [ngValue]="null">Selecione uma categoria</option>
+                    @for (categoria of categorias(); track categoria.id) {
+                        <option [ngValue]="categoria.id">{{ categoria.nome }}</option>
+                    }
+                </select>
+            </div>
+
+            <section class="financeiro-card">
+                <div class="financeiro-titulo">Preço de custo: moeda de origem</div>
+
+                <div class="moeda-options">
+                    <label class="moeda-option">
+                        <input type="radio" name="moeda" [(ngModel)]="moeda" [value]="'BRL'" (ngModelChange)="onMoedaChange()">
+                        <img class="flag-icon" src="icons/flags/brasil.png" alt="Bandeira do Brasil">
+                        <span>BRL (Real)</span>
+                    </label>
+
+                    <label class="moeda-option">
+                        <input type="radio" name="moeda" [(ngModel)]="moeda" [value]="'USD'" (ngModelChange)="onMoedaChange()">
+                        <img class="flag-icon" src="icons/flags/estados-unidos.png" alt="Bandeira dos Estados Unidos">
+                        <span>USD (Dólar)</span>
+                    </label>
+
+                    <label class="moeda-option">
+                        <input type="radio" name="moeda" [(ngModel)]="moeda" [value]="'EUR'" (ngModelChange)="onMoedaChange()">
+                        <img class="flag-icon" src="icons/flags/uniao-europeia.png" alt="Bandeira da União Europeia">
+                        <span>EUR (Euro)</span>
+                    </label>
+                </div>
+
+                <div class="importado-row">
+                    <div class="importado-info">
+                        <span class="importado-icon">🌐</span>
+                        <div>
+                            <strong>Produto importado</strong>
+                            <small>Aplicar custos e impostos de importação</small>
+                        </div>
+                    </div>
+
+                    <label class="switch" aria-label="Produto importado">
+                        <input type="checkbox" [(ngModel)]="importado" (ngModelChange)="onImportadoChange()" name="produtoImportado">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                @if (moedaEstrangeiraSelecionada) {
+                    <div class="valores-cotacao-grid">
+                        <div class="campo custo-brl-campo">
+                            <label for="precoCusto">{{ labelValorMoedaSelecionada }}</label>
+                            <div class="input-prefixado input-curto">
+                                <span>{{ simboloMoedaSelecionada }}</span>
+                                <input id="precoCusto" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="," decimalMarker="." [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoCustoInput" (ngModelChange)="onPrecoCustoInputChange($event)" name="precoCusto" [required]="true">
+                            </div>
+                        </div>
+
+                        <div class="campo campo-calculado">
+                            <label for="custoEmBrlCalculado">Custo em BRL (calculado)</label>
+                            <div class="input-prefixado">
+                                <span>R$</span>
+                                <input id="custoEmBrlCalculado" type="text" [value]="custoEmBrlCalculadoFormatado" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cotacao-atual" [class.cotacao-atual--carregando]="carregandoCotacao">
+                        @if (carregandoCotacao) {
+                            <span>Carregando cotação...</span>
+                        } @else {
+                            <span>Cotação atual: <strong>{{ cotacaoAtualFormatada }} ({{ codigoMoedaSelecionada }} → BRL)</strong></span>
+                        }
+                    </div>
+                } @else {
+                    <div class="campo custo-brl-campo">
+                        <label for="precoCusto">Custo em BRL</label>
+                        <div class="input-prefixado input-curto">
+                            <span>R$</span>
+                            <input id="precoCusto" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoCustoInput" (ngModelChange)="onPrecoCustoInputChange($event)" name="precoCusto" [required]="true">
+                        </div>
+                    </div>
                 }
-            </select>
+
+                @if (importado) {
+                    <section class="importacao-extra-card">
+                        <h3>Custos de importação</h3>
+
+                        <div class="importacao-grid">
+                            <div class="campo">
+                                <label for="freteInternacional">Frete internacional</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="freteInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="freteInternacionalInput" (ngModelChange)="onFreteInternacionalInputChange($event)" name="freteInternacional">
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="seguroInternacional">Seguro internacional</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="seguroInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="seguroInternacionalInput" (ngModelChange)="onSeguroInternacionalInputChange($event)" name="seguroInternacional">
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="aliquotaIcmsImportacao">Alíquota ICMS (%)</label>
+                                <input id="aliquotaIcmsImportacao" type="number" step="0.01" min="0" [ngModel]="aliquotaIcmsImportacao" (ngModelChange)="onAliquotaIcmsImportacaoChange($event)" name="aliquotaIcmsImportacao">
+                            </div>
+
+                            <div class="campo campo-remessa-conforme">
+                                <label for="remessaConforme">Remessa conforme</label>
+                                <label class="switch" aria-label="Remessa conforme">
+                                    <input id="remessaConforme" type="checkbox" [(ngModel)]="remessaConforme" (ngModelChange)="onRemessaConformeChange()" name="remessaConforme">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="resumo-custos-card">
+                        <h3>Resumo de custos</h3>
+
+                        <div class="resumo-custos-grid">
+                            <div class="campo">
+                                <label for="impostoImportacaoResumo">Imposto de importação</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="impostoImportacaoResumo" type="text" [value]="impostoImportacaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+
+                            <div class="campo">
+                                <label for="icmsImportacaoResumo">ICMS de importação</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="icmsImportacaoResumo" type="text" [value]="icmsImportacaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+
+                            <div class="campo campo-custo-final-destaque">
+                                <label for="custoFinalAquisicaoResumo">{{ labelCustoFinalAquisicao }}</label>
+                                <div class="input-prefixado">
+                                    <span>R$</span>
+                                    <input id="custoFinalAquisicaoResumo" type="text" [value]="custoFinalAquisicaoCalculadoFormatado" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
+
+                <div class="campo preco-venda-campo">
+                    <label for="precoVenda">Preço de venda</label>
+                    <div class="input-prefixado input-curto">
+                        <span>R$</span>
+                        <input id="precoVenda" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoVendaInput" (ngModelChange)="onPrecoVendaInputChange($event)" name="precoVenda" [required]="true">
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid-campos-finais">
+                <div class="campo">
+                    <label for="quantidadeEstoque">Quantidade estoque</label>
+                    <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque" name="quantidadeEstoque" placeholder="0" required>
+                </div>
+
+                <div class="campo">
+                    <label for="demandaBase">Demanda base</label>
+                    <input id="demandaBase" type="number" step="1" min="0" [(ngModel)]="demandaBase" name="demandaBase" placeholder="0" required>
+                </div>
+
+                <div class="campo">
+                    <label for="fatorElasticidade">Fator elasticidade</label>
+                    <input id="fatorElasticidade" type="number" step="0.01" min="0" [(ngModel)]="fatorElasticidade" name="fatorElasticidade" placeholder="1.0" required>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <label for="precoCusto">Preço Custo</label>
-            <input id="precoCusto" type="number" step="0.01" min="0" [(ngModel)]="precoCusto" name="precoCusto" required>
-        </div>
-
-        <div>
-            <label for="moeda">Moeda</label>
-            <select id="moeda" [(ngModel)]="moeda" name="moeda" required>
-                <option value="BRL">BRL (Real Brasileiro)</option>
-                <option value="USD">USD (Dólar Americano)</option>
-                <option value="EUR">EUR (Euro)</option>
-            </select>
-        </div>
-
-        <div>
-            <label for="precoVenda">Preço Venda</label>
-            <input id="precoVenda" type="number" step="0.01" min="0" [(ngModel)]="precoVenda" name="precoVenda" required>
-        </div>
-
-        <div>
-            <label for="quantidadeEstoque">Quantidade em estoque</label>
-            <input id="quantidadeEstoque" type="number" step="1" min="0" [(ngModel)]="quantidadeEstoque"  name="quantidadeEstoque" required>
-        </div>
-
-        <div>
-            <label for="demandaBase">Demanda Base</label>
-            <input id="demandaBase" type="number" step="1" min="0" [(ngModel)]="demandaBase" name="demandaBase" required>
-        </div>
-
-        <div>
-            <label for="fatorElasticidade">Fator de Elasticidade</label>
-            <input id="fatorElasticidade" type="number" step="0.01" min="0" [(ngModel)]="fatorElasticidade" name="fatorElasticidade" required>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-primary" type="submit">{{ produtoEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}</button>
-
+        <footer class="produto-modal-footer">
             <button class="btn btn-secondary" type="button" (click)="resetarFormulario()">Cancelar</button>
-        </div>  
+            <button class="btn btn-primary" type="submit">{{ produtoEmEdicaoId === null ? 'Salvar' : 'Atualizar' }}</button>
+        </footer>
     </form>
 </app-modal>

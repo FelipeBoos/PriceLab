@@ -37,4 +37,20 @@ public class ProdutoUpdateDTO {
     @PositiveOrZero(message = "O fator de elasticidade nao pode ser negativo")
     @Digits(integer = 3, fraction = 2)
     private BigDecimal fatorElasticidade;
+
+    private Boolean importado;
+
+    private Boolean remessaConforme;
+
+    @PositiveOrZero(message = "O frete internacional nao pode ser negativo")
+    @Digits(integer = 10, fraction = 4)
+    private BigDecimal freteInternacional;
+
+    @PositiveOrZero(message = "O seguro internacional nao pode ser negativo")
+    @Digits(integer = 10, fraction = 4)
+    private BigDecimal seguroInternacional;
+
+    @PositiveOrZero(message = "A aliquota de ICMS de importacao nao pode ser negativa")
+    @Digits(integer = 3, fraction = 2)
+    private BigDecimal aliquotaIcmsImportacao;
 }

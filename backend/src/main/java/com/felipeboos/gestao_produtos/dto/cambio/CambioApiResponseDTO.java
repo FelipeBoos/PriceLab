@@ -1,4 +1,4 @@
-package com.felipeboos.gestao_produtos.service.cambio.dto;
+package com.felipeboos.gestao_produtos.dto.cambio;
 
 import lombok.Getter;
 import lombok.Setter;

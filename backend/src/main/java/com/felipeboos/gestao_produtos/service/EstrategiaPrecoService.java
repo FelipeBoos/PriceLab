@@ -99,8 +99,10 @@ public class EstrategiaPrecoService {
         BigDecimal margemLucroFracao = converterPercentualParaFracao(request.getMargemLucro());
         BigDecimal percentualImpostoFracao = converterPercentualParaFracao(request.getPercentualImposto());
 
+        BigDecimal basePreco = resolverBasePreco(produto);
+
         BigDecimal precoSugerido = calcularPrecoSugerido(
-                produto.getPrecoCusto(),
+                basePreco,
                 margemLucroFracao,
                 percentualImpostoFracao
         );
@@ -111,7 +113,7 @@ public class EstrategiaPrecoService {
         );
 
         BigDecimal lucroUnitario = calcularLucroUnitario(
-                produto.getPrecoCusto(),
+                basePreco,
                 precoSugerido,
                 impostoUnitario
         );
@@ -152,23 +154,20 @@ public class EstrategiaPrecoService {
 
         response.setImpostoUnitario(impostoUnitario);
         response.setImpostoTotal(impostoTotal);
-        
-        // Adicionar avisos sobre viabilidade da estratégia
         response.setAvisos(gerarAvisosEstrategia(estrategiaPreco));
 
         return response;
     }
 
     private BigDecimal calcularPrecoSugerido(
-            BigDecimal precoCusto,
+            BigDecimal basePreco,
             BigDecimal margemLucroFracao,
             BigDecimal percentualImpostoFracao
     ) {
-        // precoSugerido = precoCusto * (1 + margemLucro) * (1 + percentualImposto)
         BigDecimal fatorMargemLucro = BigDecimal.ONE.add(margemLucroFracao);
         BigDecimal fatorPercentualImposto = BigDecimal.ONE.add(percentualImpostoFracao);
 
-        return precoCusto
+        return basePreco
                 .multiply(fatorMargemLucro)
                 .multiply(fatorPercentualImposto)
                 .setScale(SCALE_MONETARIO, RoundingMode.HALF_UP);
@@ -178,7 +177,6 @@ public class EstrategiaPrecoService {
             BigDecimal precoSugerido,
             BigDecimal percentualImpostoFracao
     ) {
-        // impostoUnitario = parte do imposto embutida no precoSugerido
         BigDecimal precoSemImposto = precoSugerido.divide(
                 BigDecimal.ONE.add(percentualImpostoFracao),
                 SCALE_MONETARIO,
@@ -190,12 +188,11 @@ public class EstrategiaPrecoService {
     }
 
     private BigDecimal calcularLucroUnitario(
-            BigDecimal precoCusto,
+            BigDecimal basePreco,
             BigDecimal precoSugerido,
             BigDecimal impostoUnitario
     ) {
-        // lucroUnitario = precoSugerido - precoCusto - impostoUnitario
-        return precoSugerido.subtract(precoCusto)
+        return precoSugerido.subtract(basePreco)
                 .subtract(impostoUnitario)
                 .setScale(SCALE_MONETARIO, RoundingMode.HALF_UP);
     }
@@ -205,7 +202,6 @@ public class EstrategiaPrecoService {
             BigDecimal precoSugerido,
             BigDecimal fatorElasticidade
     ) {
-        // demandaEstimada = demandaBase - (precoSugerido * fatorElasticidade)
         Integer quedaEstimadaVendas = precoSugerido.multiply(fatorElasticidade)
                 .setScale(0, RoundingMode.HALF_UP)
                 .intValue();
@@ -227,7 +223,6 @@ public class EstrategiaPrecoService {
             BigDecimal lucroUnitario,
             Integer demandaEstimada
     ) {
-        // lucroTotalEstimado = lucroUnitario * demandaEstimada
         return lucroUnitario.multiply(BigDecimal.valueOf(demandaEstimada))
                 .setScale(SCALE_MONETARIO, RoundingMode.HALF_UP);
     }
@@ -256,44 +251,59 @@ public class EstrategiaPrecoService {
     private BigDecimal converterPercentualParaFracao(BigDecimal percentual) {
         return percentual.divide(BigDecimal.valueOf(100), SCALE_PERCENTUAL, RoundingMode.HALF_UP);
     }
-    
+
+    private BigDecimal resolverBasePreco(Produto produto) {
+        if (produto.getCustoFinalAquisicao() != null) {
+            return produto.getCustoFinalAquisicao();
+        }
+
+        if (produto.getPrecoCustoEmReais() != null) {
+            return produto.getPrecoCustoEmReais();
+        }
+
+        if (produto.getPrecoCusto() != null) {
+            return produto.getPrecoCusto();
+        }
+
+        return BigDecimal.ZERO.setScale(SCALE_MONETARIO, RoundingMode.HALF_UP);
+    }
+
     private List<String> gerarAvisosEstrategia(EstrategiaPreco estrategiaPreco) {
         List<String> avisos = new ArrayList<>();
-        
+
         if (estrategiaPreco == null || estrategiaPreco.getProduto() == null) {
             return avisos;
         }
-        
-        // Aviso quando demanda estimada é zero
+
         if (estrategiaPreco.getDemandaEstimada() != null && estrategiaPreco.getDemandaEstimada() <= 0) {
             BigDecimal fatorElasticidade = estrategiaPreco.getProduto().getFatorElasticidade();
-            String avisoTexto = "⚠️ Demanda estimada zerada: O fator de elasticidade do produto (" + 
-                    String.format("%.2f", fatorElasticidade) + ") resultou em uma demanda estimada nula para a margem de lucro informada (" +
-                    String.format("%.2f", estrategiaPreco.getMargemLucro()) + "%). " +
-                    "Isso significa que o preço sugerido é tão alto que o produto não teria vendas estimadas. " +
-                    "Considere aumentar o fator de elasticidade do produto, aumentar a demanda base ou reduzir a margem de lucro.";
+            String avisoTexto = "⚠️ Demanda estimada zerada: O fator de elasticidade do produto ("
+                    + String.format("%.2f", fatorElasticidade) + ") resultou em uma demanda estimada nula para a margem de lucro informada ("
+                    + String.format("%.2f", estrategiaPreco.getMargemLucro()) + "%). "
+                    + "Isso significa que o preço sugerido é tão alto que o produto não teria vendas estimadas. "
+                    + "Considere aumentar o fator de elasticidade do produto, aumentar a demanda base ou reduzir a margem de lucro.";
             avisos.add(avisoTexto);
         }
-        
-        // Aviso quando lucro total é zero ou negligenciável
-        if (estrategiaPreco.getLucroTotalEstimado() != null && 
-                estrategiaPreco.getLucroTotalEstimado().compareTo(BigDecimal.ZERO) <= 0) {
-            avisos.add("⚠️ Lucro total zerado: A estratégia resultou em lucro total estimado igual a zero. " +
-                    "Não há viabilidade econômica nesta configuração.");
+
+        if (estrategiaPreco.getLucroTotalEstimado() != null
+                && estrategiaPreco.getLucroTotalEstimado().compareTo(BigDecimal.ZERO) <= 0) {
+            avisos.add("⚠️ Lucro total zerado: A estratégia resultou em lucro total estimado igual a zero. "
+                    + "Não há viabilidade econômica nesta configuração.");
         }
-        
-        // Aviso quando demanda estimada é muito baixa (menos de 10% da demanda base)
+
         Integer demandaBase = estrategiaPreco.getProduto().getDemandaBase();
-        if (demandaBase != null && demandaBase > 0 && estrategiaPreco.getDemandaEstimada() != null &&
-                estrategiaPreco.getDemandaEstimada() < demandaBase * 0.1) {
-            double percentualDemanda = (estrategiaPreco.getDemandaEstimada().doubleValue() / 
-                                       demandaBase.doubleValue()) * 100;
-            String avisoTexto = "ℹ️ Demanda crítica: A demanda estimada (" + 
-                    String.format("%.1f", percentualDemanda) + "% da demanda base) é muito baixa. " +
-                    "Revise a margem de lucro ou o fator de elasticidade do produto.";
+        if (demandaBase != null
+                && demandaBase > 0
+                && estrategiaPreco.getDemandaEstimada() != null
+                && estrategiaPreco.getDemandaEstimada() < demandaBase * 0.1) {
+            double percentualDemanda = (estrategiaPreco.getDemandaEstimada().doubleValue()
+                    / demandaBase.doubleValue()) * 100;
+            String avisoTexto = "ℹ️ Demanda crítica: A demanda estimada ("
+                    + String.format("%.1f", percentualDemanda) + "% da demanda base) é muito baixa. "
+                    + "Revise a margem de lucro ou o fator de elasticidade do produto.";
             avisos.add(avisoTexto);
         }
-        
+
         return avisos;
     }
 }

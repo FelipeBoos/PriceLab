@@ -10,7 +10,8 @@ import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
 import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
-import com.felipeboos.gestao_produtos.service.cambio.CambioService;
+import com.felipeboos.gestao_produtos.service.importacao.ImportacaoService;
+import com.felipeboos.gestao_produtos.service.importacao.ResultadoCalculoImportacao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ public class ProdutoServiceTest {
     private CategoriaRepository categoriaRepository;
 
     @Mock
-    private CambioService cambioService;
+    private ImportacaoService importacaoService;
 
     @InjectMocks
     private ProdutoService service;
@@ -73,6 +74,14 @@ public class ProdutoServiceTest {
                 .moeda(Moeda.BRL)
                 .cotacaoMoeda(BigDecimal.ONE)
                 .precoCustoEmReais(BigDecimal.valueOf(450))
+                .importado(false)
+                .remessaConforme(false)
+                .freteInternacional(BigDecimal.ZERO)
+                .seguroInternacional(BigDecimal.ZERO)
+                .aliquotaIcmsImportacao(new BigDecimal("17.00"))
+                .impostoImportacao(BigDecimal.ZERO)
+                .icmsImportacao(BigDecimal.ZERO)
+                .custoFinalAquisicao(BigDecimal.valueOf(450))
                 .precoVenda(BigDecimal.valueOf(600))
                 .quantidadeEstoque(10)
                 .demandaBase(100)
@@ -88,6 +97,11 @@ public class ProdutoServiceTest {
         produtoRequestDTO.setQuantidadeEstoque(10);
         produtoRequestDTO.setDemandaBase(100);
         produtoRequestDTO.setFatorElasticidade(BigDecimal.valueOf(0.05));
+        produtoRequestDTO.setImportado(false);
+        produtoRequestDTO.setRemessaConforme(false);
+        produtoRequestDTO.setFreteInternacional(BigDecimal.ZERO);
+        produtoRequestDTO.setSeguroInternacional(BigDecimal.ZERO);
+        produtoRequestDTO.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         produtoUpdateDTOCompleto = new ProdutoUpdateDTO();
         produtoUpdateDTOCompleto.setNome("Nome teste alteração");
@@ -98,6 +112,11 @@ public class ProdutoServiceTest {
         produtoUpdateDTOCompleto.setQuantidadeEstoque(8);
         produtoUpdateDTOCompleto.setDemandaBase(90);
         produtoUpdateDTOCompleto.setFatorElasticidade(BigDecimal.valueOf(0.06));
+        produtoUpdateDTOCompleto.setImportado(false);
+        produtoUpdateDTOCompleto.setRemessaConforme(false);
+        produtoUpdateDTOCompleto.setFreteInternacional(BigDecimal.ZERO);
+        produtoUpdateDTOCompleto.setSeguroInternacional(BigDecimal.ZERO);
+        produtoUpdateDTOCompleto.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         produtoUpdateDTOParcial = new ProdutoUpdateDTO();
         produtoUpdateDTOParcial.setNome("Nome teste alteração parcial");
@@ -112,7 +131,15 @@ public class ProdutoServiceTest {
     void t1_deveSalvarProdutoComSucesso() {
         when(repository.existsByNome("Produto teste 1")).thenReturn(false);
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
-        when(cambioService.obterCotacao(Moeda.BRL)).thenReturn(BigDecimal.ONE);
+        when(importacaoService.calcular(any(Produto.class))).thenReturn(
+                ResultadoCalculoImportacao.builder()
+                        .cotacaoMoeda(BigDecimal.ONE)
+                        .precoCustoEmReais(BigDecimal.valueOf(450))
+                        .impostoImportacao(BigDecimal.ZERO)
+                        .icmsImportacao(BigDecimal.ZERO)
+                        .custoFinalAquisicao(BigDecimal.valueOf(450))
+                        .build()
+        );
         when(repository.saveAndFlush(any(Produto.class))).thenReturn(produto);
 
         ProdutoResponseDTO response = service.salvarProduto(produtoRequestDTO);
@@ -123,9 +150,10 @@ public class ProdutoServiceTest {
         assertEquals("Eletrônicos", response.getCategoriaNome());
         assertEquals(0, response.getPrecoCusto().compareTo(BigDecimal.valueOf(450)));
         assertEquals(100, response.getDemandaBase());
+        assertEquals(0, response.getCustoFinalAquisicao().compareTo(BigDecimal.valueOf(450)));
 
         verify(repository, times(1)).saveAndFlush(any(Produto.class));
-        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
+        verify(importacaoService, times(1)).calcular(any(Produto.class));
     }
 
     @Test
@@ -140,7 +168,7 @@ public class ProdutoServiceTest {
 
         verify(categoriaRepository, never()).findById(anyLong());
         verify(repository, never()).saveAndFlush(any(Produto.class));
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -156,7 +184,7 @@ public class ProdutoServiceTest {
 
         verify(repository, times(1)).existsByNome("Produto teste 1");
         verify(categoriaRepository, times(1)).findById(1L);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
         verify(repository, never()).saveAndFlush(any(Produto.class));
     }
 
@@ -176,7 +204,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findById(1L);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -191,7 +219,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findById(1L);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -211,7 +239,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findByNome("Produto teste 1");
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -226,7 +254,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findByNome("Produto teste 1");
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -240,6 +268,14 @@ public class ProdutoServiceTest {
                 .moeda(Moeda.BRL)
                 .cotacaoMoeda(BigDecimal.ONE)
                 .precoCustoEmReais(BigDecimal.valueOf(370))
+                .importado(false)
+                .remessaConforme(false)
+                .freteInternacional(BigDecimal.ZERO)
+                .seguroInternacional(BigDecimal.ZERO)
+                .aliquotaIcmsImportacao(new BigDecimal("17.00"))
+                .impostoImportacao(BigDecimal.ZERO)
+                .icmsImportacao(BigDecimal.ZERO)
+                .custoFinalAquisicao(BigDecimal.valueOf(370))
                 .precoVenda(BigDecimal.valueOf(430))
                 .quantidadeEstoque(25)
                 .demandaBase(80)
@@ -265,7 +301,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findAllByOrderByIdAsc();
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -280,7 +316,7 @@ public class ProdutoServiceTest {
 
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).findAllByOrderByIdAsc();
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -294,7 +330,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsById(1L);
         verify(repository, times(1)).deleteById(1L);
         verifyNoInteractions(categoriaRepository);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -310,7 +346,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsById(1L);
         verify(repository, never()).deleteById(anyLong());
         verifyNoInteractions(categoriaRepository);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -319,7 +355,15 @@ public class ProdutoServiceTest {
         when(repository.findById(1L)).thenReturn(Optional.of(produto));
         when(repository.existsByNome("Nome teste alteração")).thenReturn(false);
         when(categoriaRepository.findById(2L)).thenReturn(Optional.of(categoria2));
-        when(cambioService.obterCotacao(Moeda.BRL)).thenReturn(BigDecimal.ONE);
+        when(importacaoService.calcular(any(Produto.class))).thenReturn(
+                ResultadoCalculoImportacao.builder()
+                        .cotacaoMoeda(BigDecimal.ONE)
+                        .precoCustoEmReais(BigDecimal.valueOf(470))
+                        .impostoImportacao(BigDecimal.ZERO)
+                        .icmsImportacao(BigDecimal.ZERO)
+                        .custoFinalAquisicao(BigDecimal.valueOf(470))
+                        .build()
+        );
 
         service.atualizarProdutoPorId(1L, produtoUpdateDTOCompleto);
 
@@ -334,12 +378,13 @@ public class ProdutoServiceTest {
         assertEquals(Moeda.BRL, produto.getMoeda());
         assertEquals(0, produto.getCotacaoMoeda().compareTo(BigDecimal.ONE));
         assertEquals(0, produto.getPrecoCustoEmReais().compareTo(BigDecimal.valueOf(470)));
+        assertEquals(0, produto.getCustoFinalAquisicao().compareTo(BigDecimal.valueOf(470)));
 
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).existsByNome("Nome teste alteração");
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, times(1)).saveAndFlush(produto);
-        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
+        verify(importacaoService, times(1)).calcular(any(Produto.class));
     }
 
     @Test
@@ -356,7 +401,7 @@ public class ProdutoServiceTest {
         verify(repository, never()).existsByNome(anyString());
         verify(repository, never()).saveAndFlush(any(Produto.class));
         verifyNoInteractions(categoriaRepository);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -374,7 +419,7 @@ public class ProdutoServiceTest {
         verify(repository, times(1)).existsByNome(anyString());
         verify(repository, never()).saveAndFlush(any(Produto.class));
         verifyNoInteractions(categoriaRepository);
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -382,7 +427,15 @@ public class ProdutoServiceTest {
     void t15_deveAtualizarApenasCamposInformados() {
         when(repository.findById(1L)).thenReturn(Optional.of(produto));
         when(repository.existsByNome("Nome teste alteração parcial")).thenReturn(false);
-        when(cambioService.obterCotacao(Moeda.BRL)).thenReturn(BigDecimal.ONE);
+        when(importacaoService.calcular(any(Produto.class))).thenReturn(
+                ResultadoCalculoImportacao.builder()
+                        .cotacaoMoeda(BigDecimal.ONE)
+                        .precoCustoEmReais(BigDecimal.valueOf(480))
+                        .impostoImportacao(BigDecimal.ZERO)
+                        .icmsImportacao(BigDecimal.ZERO)
+                        .custoFinalAquisicao(BigDecimal.valueOf(480))
+                        .build()
+        );
 
         service.atualizarProdutoPorId(1L, produtoUpdateDTOParcial);
 
@@ -398,12 +451,13 @@ public class ProdutoServiceTest {
         assertEquals(Moeda.BRL, produto.getMoeda());
         assertEquals(0, produto.getCotacaoMoeda().compareTo(BigDecimal.ONE));
         assertEquals(0, produto.getPrecoCustoEmReais().compareTo(BigDecimal.valueOf(480)));
+        assertEquals(0, produto.getCustoFinalAquisicao().compareTo(BigDecimal.valueOf(480)));
 
         verify(repository, times(1)).findById(1L);
         verify(repository, times(1)).existsByNome("Nome teste alteração parcial");
         verifyNoInteractions(categoriaRepository);
         verify(repository, times(1)).saveAndFlush(produto);
-        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
+        verify(importacaoService, times(1)).calcular(any(Produto.class));
     }
 
     @Test
@@ -411,7 +465,15 @@ public class ProdutoServiceTest {
     void t16_deveAtualizarCategoriaComSucesso() {
         when(repository.findById(1L)).thenReturn(Optional.of(produto));
         when(categoriaRepository.findById(2L)).thenReturn(Optional.of(categoria2));
-        when(cambioService.obterCotacao(Moeda.BRL)).thenReturn(BigDecimal.ONE);
+        when(importacaoService.calcular(any(Produto.class))).thenReturn(
+                ResultadoCalculoImportacao.builder()
+                        .cotacaoMoeda(BigDecimal.ONE)
+                        .precoCustoEmReais(BigDecimal.valueOf(450))
+                        .impostoImportacao(BigDecimal.ZERO)
+                        .icmsImportacao(BigDecimal.ZERO)
+                        .custoFinalAquisicao(BigDecimal.valueOf(450))
+                        .build()
+        );
 
         service.atualizarProdutoPorId(1L, produtoUpdateDTOSomenteCategoria);
 
@@ -425,12 +487,13 @@ public class ProdutoServiceTest {
         assertEquals(Moeda.BRL, produto.getMoeda());
         assertEquals(0, produto.getCotacaoMoeda().compareTo(BigDecimal.ONE));
         assertEquals(0, produto.getPrecoCustoEmReais().compareTo(BigDecimal.valueOf(450)));
+        assertEquals(0, produto.getCustoFinalAquisicao().compareTo(BigDecimal.valueOf(450)));
 
         verify(repository, times(1)).findById(1L);
         verify(repository, never()).existsByNome(anyString());
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, times(1)).saveAndFlush(produto);
-        verify(cambioService, times(1)).obterCotacao(Moeda.BRL);
+        verify(importacaoService, times(1)).calcular(any(Produto.class));
     }
 
     @Test
@@ -448,7 +511,7 @@ public class ProdutoServiceTest {
         verify(repository, never()).existsByNome(anyString());
         verify(categoriaRepository, times(1)).findById(2L);
         verify(repository, never()).saveAndFlush(any(Produto.class));
-        verifyNoInteractions(cambioService);
+        verifyNoInteractions(importacaoService);
     }
 
     @Test
@@ -463,6 +526,11 @@ public class ProdutoServiceTest {
         requestUsd.setQuantidadeEstoque(5);
         requestUsd.setDemandaBase(20);
         requestUsd.setFatorElasticidade(BigDecimal.valueOf(0.03));
+        requestUsd.setImportado(false);
+        requestUsd.setRemessaConforme(false);
+        requestUsd.setFreteInternacional(BigDecimal.ZERO);
+        requestUsd.setSeguroInternacional(BigDecimal.ZERO);
+        requestUsd.setAliquotaIcmsImportacao(new BigDecimal("17.00"));
 
         Produto produtoUsd = Produto.builder()
                 .id(2L)
@@ -472,6 +540,14 @@ public class ProdutoServiceTest {
                 .moeda(Moeda.USD)
                 .cotacaoMoeda(BigDecimal.valueOf(5.25))
                 .precoCustoEmReais(BigDecimal.valueOf(525.00))
+                .importado(false)
+                .remessaConforme(false)
+                .freteInternacional(BigDecimal.ZERO)
+                .seguroInternacional(BigDecimal.ZERO)
+                .aliquotaIcmsImportacao(new BigDecimal("17.00"))
+                .impostoImportacao(BigDecimal.ZERO)
+                .icmsImportacao(BigDecimal.ZERO)
+                .custoFinalAquisicao(BigDecimal.valueOf(525.00))
                 .precoVenda(BigDecimal.valueOf(700))
                 .quantidadeEstoque(5)
                 .demandaBase(20)
@@ -480,7 +556,15 @@ public class ProdutoServiceTest {
 
         when(repository.existsByNome("Produto em dólar")).thenReturn(false);
         when(categoriaRepository.findById(1L)).thenReturn(Optional.of(categoria));
-        when(cambioService.obterCotacao(Moeda.USD)).thenReturn(BigDecimal.valueOf(5.25));
+        when(importacaoService.calcular(any(Produto.class))).thenReturn(
+                ResultadoCalculoImportacao.builder()
+                        .cotacaoMoeda(BigDecimal.valueOf(5.25))
+                        .precoCustoEmReais(BigDecimal.valueOf(525.00))
+                        .impostoImportacao(BigDecimal.ZERO)
+                        .icmsImportacao(BigDecimal.ZERO)
+                        .custoFinalAquisicao(BigDecimal.valueOf(525.00))
+                        .build()
+        );
         when(repository.saveAndFlush(any(Produto.class))).thenReturn(produtoUsd);
 
         ProdutoResponseDTO response = service.salvarProduto(requestUsd);
@@ -488,8 +572,10 @@ public class ProdutoServiceTest {
         assertNotNull(response);
         assertEquals("Produto em dólar", response.getNome());
         assertEquals(0, response.getPrecoCusto().compareTo(BigDecimal.valueOf(100)));
+        assertEquals(0, response.getPrecoCustoEmReais().compareTo(BigDecimal.valueOf(525.00)));
+        assertEquals(0, response.getCustoFinalAquisicao().compareTo(BigDecimal.valueOf(525.00)));
 
         verify(repository, times(1)).saveAndFlush(any(Produto.class));
-        verify(cambioService, times(1)).obterCotacao(Moeda.USD);
+        verify(importacaoService, times(1)).calcular(any(Produto.class));
     }
 }

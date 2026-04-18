@@ -15,6 +15,8 @@ export class Categorias implements OnInit {
   nome = '';
   descricao = '';
   categorias = signal<CategoriaResponse[]>([]);
+  mensagemToastSucesso: string | null = null;
+  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   exibirFormulario = false;
   categoriaEmEdicaoId: number | null = null;
@@ -24,6 +26,28 @@ export class Categorias implements OnInit {
   ngOnInit(): void {
     //console.log('ngOnInit da página Categorias');
     this.carregarCategorias();
+  }
+
+  private exibirToastSucesso(mensagem: string): void {
+    this.mensagemToastSucesso = mensagem;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+    }
+
+    this.toastSucessoTimeoutId = setTimeout(() => {
+      this.mensagemToastSucesso = null;
+      this.toastSucessoTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToastSucesso(): void {
+    this.mensagemToastSucesso = null;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
   }
 
   salvarCategoria() {
@@ -50,7 +74,7 @@ export class Categorias implements OnInit {
         .cadastrarCategoria(categoria)
         .subscribe({
           next: () => {
-            alert('Categoria cadastrada com sucesso');
+            this.exibirToastSucesso('Categoria salva com sucesso.');
             this.resetarFormulario();
             this.carregarCategorias();
           },

@@ -1,6 +1,7 @@
 package com.felipeboos.gestao_produtos.service;
 
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoRequestDTO;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoCotacaoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoUpdateDTO;
 import com.felipeboos.gestao_produtos.entity.Categoria;
@@ -10,11 +11,12 @@ import com.felipeboos.gestao_produtos.exception.RecursoDuplicadoException;
 import com.felipeboos.gestao_produtos.exception.RecursoNaoEncontradoException;
 import com.felipeboos.gestao_produtos.repository.CategoriaRepository;
 import com.felipeboos.gestao_produtos.repository.ProdutoRepository;
+import com.felipeboos.gestao_produtos.service.importacao.ImportacaoService;
+import com.felipeboos.gestao_produtos.service.importacao.ResultadoCalculoImportacao;
 import com.felipeboos.gestao_produtos.service.cambio.CambioService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,27 +25,34 @@ public class ProdutoService {
 
     private final ProdutoRepository repository;
     private final CategoriaRepository catRepository;
+    private final ImportacaoService importacaoService;
     private final CambioService cambioService;
 
     public ProdutoService(
             ProdutoRepository repository,
             CategoriaRepository catRepository,
+            ImportacaoService importacaoService,
             CambioService cambioService
     ) {
         this.repository = repository;
         this.catRepository = catRepository;
+        this.importacaoService = importacaoService;
         this.cambioService = cambioService;
+    }
+
+    @Transactional(readOnly = true)
+    public ProdutoCotacaoResponseDTO buscarCotacaoAtual(Moeda moeda) {
+        Moeda moedaSelecionada = moeda != null ? moeda : Moeda.BRL;
+        return new ProdutoCotacaoResponseDTO(moedaSelecionada, cambioService.obterCotacao(moedaSelecionada));
     }
 
     @Transactional
     public ProdutoResponseDTO salvarProduto(ProdutoRequestDTO dto) {
-
         if (repository.existsByNome(dto.getNome())) {
             throw new RecursoDuplicadoException("Já existe um produto cadastrado com esse nome");
         }
 
         Produto produto = toEntity(dto);
-
         Produto produtoSalvo = repository.saveAndFlush(produto);
 
         return ProdutoResponseDTO.fromEntity(produtoSalvo);
@@ -58,8 +67,7 @@ public class ProdutoService {
     }
 
     public List<ProdutoResponseDTO> buscarProdutoPorNome(String nome) {
-
-        Produto produto =  repository.findByNome(nome).orElseThrow(
+        Produto produto = repository.findByNome(nome).orElseThrow(
                 () -> new RecursoNaoEncontradoException("Produto nao encontrado para o nome informado")
         );
 
@@ -69,7 +77,6 @@ public class ProdutoService {
     @Transactional(readOnly = true)
     public List<ProdutoResponseDTO> listarTodosOsProdutos() {
         List<Produto> listaProdutos = repository.findAllByOrderByIdAsc();
-
         List<ProdutoResponseDTO> listaProdutosResponse = new ArrayList<>();
 
         for (Produto produto : listaProdutos) {
@@ -87,8 +94,8 @@ public class ProdutoService {
         repository.deleteById(id);
     }
 
+    @Transactional
     public void atualizarProdutoPorId(Long id, ProdutoUpdateDTO produtoPatch) {
-
         Produto produtoEntity = repository.findById(id).orElseThrow(
                 () -> new RecursoNaoEncontradoException("Produto nao encontrado para o id informado")
         );
@@ -100,6 +107,7 @@ public class ProdutoService {
         }
 
         aplicarAlteracoes(produtoEntity, produtoPatch);
+        aplicarResultadoCalculo(produtoEntity);
 
         repository.saveAndFlush(produtoEntity);
     }
@@ -132,10 +140,21 @@ public class ProdutoService {
         if (produtoPatch.getFatorElasticidade() != null) {
             produtoEntity.setFatorElasticidade(produtoPatch.getFatorElasticidade());
         }
-
-        BigDecimal cotacao = cambioService.obterCotacao(produtoEntity.getMoeda());
-        produtoEntity.setCotacaoMoeda(cotacao);
-        produtoEntity.setPrecoCustoEmReais(produtoEntity.getPrecoCusto().multiply(cotacao));
+        if (produtoPatch.getImportado() != null) {
+            produtoEntity.setImportado(produtoPatch.getImportado());
+        }
+        if (produtoPatch.getRemessaConforme() != null) {
+            produtoEntity.setRemessaConforme(produtoPatch.getRemessaConforme());
+        }
+        if (produtoPatch.getFreteInternacional() != null) {
+            produtoEntity.setFreteInternacional(produtoPatch.getFreteInternacional());
+        }
+        if (produtoPatch.getSeguroInternacional() != null) {
+            produtoEntity.setSeguroInternacional(produtoPatch.getSeguroInternacional());
+        }
+        if (produtoPatch.getAliquotaIcmsImportacao() != null) {
+            produtoEntity.setAliquotaIcmsImportacao(produtoPatch.getAliquotaIcmsImportacao());
+        }
     }
 
     private void setCategoria(Produto produtoEntity, Long categoriaId) {
@@ -155,17 +174,30 @@ public class ProdutoService {
                 .quantidadeEstoque(dto.getQuantidadeEstoque())
                 .demandaBase(dto.getDemandaBase())
                 .fatorElasticidade(dto.getFatorElasticidade())
+                .importado(dto.getImportado())
+                .remessaConforme(dto.getRemessaConforme())
+                .freteInternacional(dto.getFreteInternacional())
+                .seguroInternacional(dto.getSeguroInternacional())
+                .aliquotaIcmsImportacao(dto.getAliquotaIcmsImportacao())
                 .build();
 
         setCategoria(produto, dto.getCategoriaId());
 
         Moeda moeda = dto.getMoeda() != null ? dto.getMoeda() : Moeda.BRL;
-        BigDecimal cotacao = cambioService.obterCotacao(moeda);
-
         produto.setMoeda(moeda);
-        produto.setCotacaoMoeda(cotacao);
-        produto.setPrecoCustoEmReais(dto.getPrecoCusto().multiply(cotacao));
+
+        aplicarResultadoCalculo(produto);
 
         return produto;
+    }
+
+    private void aplicarResultadoCalculo(Produto produto) {
+        ResultadoCalculoImportacao resultado = importacaoService.calcular(produto);
+
+        produto.setCotacaoMoeda(resultado.getCotacaoMoeda());
+        produto.setPrecoCustoEmReais(resultado.getPrecoCustoEmReais());
+        produto.setImpostoImportacao(resultado.getImpostoImportacao());
+        produto.setIcmsImportacao(resultado.getIcmsImportacao());
+        produto.setCustoFinalAquisicao(resultado.getCustoFinalAquisicao());
     }
 }

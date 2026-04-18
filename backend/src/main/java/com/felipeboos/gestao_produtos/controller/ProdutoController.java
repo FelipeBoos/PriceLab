@@ -1,8 +1,10 @@
 package com.felipeboos.gestao_produtos.controller;
 
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoRequestDTO;
+import com.felipeboos.gestao_produtos.dto.produto.ProdutoCotacaoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoResponseDTO;
 import com.felipeboos.gestao_produtos.dto.produto.ProdutoUpdateDTO;
+import com.felipeboos.gestao_produtos.entity.Moeda;
 import com.felipeboos.gestao_produtos.service.ProdutoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,11 @@ public class ProdutoController {
         }
 
         return ResponseEntity.ok(produtoService.listarTodosOsProdutos());
+    }
+
+    @GetMapping("/cotacao-atual")
+    public ResponseEntity<ProdutoCotacaoResponseDTO> buscarCotacaoAtual(@RequestParam Moeda moeda) {
+        return ResponseEntity.ok(produtoService.buscarCotacaoAtual(moeda));
     }
 
     @PostMapping

@@ -14,10 +14,20 @@ export interface ProdutoRequest {
   categoriaId: number,
   precoCusto: number,
   moeda?: MoedaEnum,
+  importado: boolean,
+  remessaConforme: boolean,
+  freteInternacional: number,
+  seguroInternacional: number,
+  aliquotaIcmsImportacao: number,
   precoVenda: number,
   quantidadeEstoque: number,
   demandaBase?: number,
   fatorElasticidade?: number
+}
+
+export interface ProdutoCotacaoResponse {
+  moeda: MoedaEnum;
+  cotacao: number;
 }
 
 export interface ProdutoResponse {
@@ -28,6 +38,16 @@ export interface ProdutoResponse {
   categoriaId: number,
   precoCusto: number;
   moeda?: MoedaEnum;
+  cotacaoMoeda?: number;
+  precoCustoEmReais?: number;
+  importado: boolean;
+  remessaConforme?: boolean;
+  freteInternacional?: number;
+  seguroInternacional?: number;
+  aliquotaIcmsImportacao?: number;
+  impostoImportacao?: number;
+  icmsImportacao?: number;
+  custoFinalAquisicao?: number;
   precoVenda: number;
   quantidadeEstoque: number;
   demandaBase?: number;
@@ -50,6 +70,12 @@ export class ProdutoService {
 
   cadastrarProduto(produto: ProdutoRequest) {
     return this.http.post<ProdutoResponse>(this.apiUrl, produto);
+  }
+
+  buscarCotacaoAtual(moeda: MoedaEnum) {
+    return this.http.get<ProdutoCotacaoResponse>(`${this.apiUrl}/cotacao-atual`, {
+      params: { moeda }
+    });
   }
 
   atualizarProduto(id: number, produto: ProdutoRequest) {
