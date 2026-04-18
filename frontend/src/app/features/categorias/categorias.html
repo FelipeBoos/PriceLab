@@ -66,9 +66,13 @@
 
 </section>
 
-<app-modal [aberto]="exibirFormulario" [titulo]="categoriaEmEdicaoId === null ? 'Nova Categoria' : 'Editar Categoria'"
+<app-modal
+    [aberto]="exibirFormulario"
+    [titulo]="categoriaEmEdicaoId === null ? 'Nova Categoria' : 'Editar Categoria'"
+    [largura]="'min(560px, 92vw)'"
+    [altura]="'auto'"
     (fechar)="resetarFormulario()">
-    <form (ngSubmit)="salvarCategoria()">
+    <form class="categoria-modal-form" (ngSubmit)="salvarCategoria()">
         <div>
             <label for="nome">Nome</label>
             <input id="nome" type="text" [(ngModel)]="nome" name="nome">

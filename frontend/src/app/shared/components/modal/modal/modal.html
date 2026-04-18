@@ -1,6 +1,6 @@
 @if (aberto) {
     <div class="overlay" (click)="onOverlayClick()">
-        <div class="modal-box" [style.width]="largura" (click)="$event.stopPropagation()">
+        <div class="modal-box" [style.width]="largura" [style.height]="altura" [style.maxHeight]="alturaMaxima" (click)="$event.stopPropagation()">
 
             @if (titulo) {
                 <div class="modal-header">

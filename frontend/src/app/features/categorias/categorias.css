@@ -4,6 +4,12 @@ form {
     gap: 18px;
 }
 
+.categoria-modal-form {
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
 form div {
     display: flex;
     flex-direction: column;
@@ -42,6 +48,10 @@ textarea:focus {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 8px;
+}
+
+.categoria-modal-form .modal-actions {
+    margin-top: 4px;
 }
 
 .actions-inline {

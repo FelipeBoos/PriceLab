@@ -75,7 +75,12 @@
 
 </section>
 
-<app-modal [aberto]="exibirFormulario" [titulo]="''" [largura]="'min(572px, 100%)'" (fechar)="resetarFormulario()">
+<app-modal
+    [aberto]="exibirFormulario"
+    [titulo]="''"
+    [largura]="'min(calc(clamp(781px, 86vh, 980px) * 0.7324), 92vw)'"
+    [altura]="'clamp(781px, 86vh, 980px)'"
+    (fechar)="resetarFormulario()">
     <form class="produto-modal-form" (ngSubmit)="botaoSalvar()">
         <header class="produto-modal-header">
             <div class="produto-modal-header-texto">

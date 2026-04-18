@@ -14,8 +14,6 @@
 .modal-box {
     background: #ffffff;
     max-width: 100%;
-    height: min(781px, calc(100vh - 40px));
-    max-height: calc(100vh - 40px);
     border-radius: 14px;
     box-shadow: 0 24px 44px rgba(15, 23, 42, 0.22);
     border: 1px solid #d9dee7;
@@ -73,7 +71,8 @@
 }
 
 .modal-content {
-    display: block;
+    display: flex;
+    flex: 1;
     overflow-y: auto;
     min-height: 0;
 }
