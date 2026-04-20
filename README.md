@@ -26,7 +26,7 @@ Desenvolvido por **Felipe Boos**
 ![Produtos](docs/screenshots/produtos_listagem.png)
 
 ## Categorias
-
+ 
 ### Listagem de categorias
 ![Categorias](docs/screenshots/categorias.png)
 
