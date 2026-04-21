@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontend-gestao-estoques": {
+    "pricelab-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -34,13 +34,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "700kB",
+                  "maximumError": "1.2MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
                 }
               ],
               "outputHashing": "all"
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend-gestao-estoques:build:production"
+              "buildTarget": "pricelab-frontend:build:production"
             },
             "development": {
-              "buildTarget": "frontend-gestao-estoques:build:development"
+              "buildTarget": "pricelab-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
