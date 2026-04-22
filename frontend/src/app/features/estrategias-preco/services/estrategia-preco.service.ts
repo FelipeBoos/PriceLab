@@ -36,7 +36,7 @@ export interface EstrategiaPrecoResponse {
 })
 export class EstrategiaPrecoService {
 
-  private apiUrl = `${environment.apiBaseUrl}/estrategias-preco`
+  private apiUrl = `${environment.apiUrl}/estrategias-preco`
 
   constructor(private http: HttpClient) {}
 
