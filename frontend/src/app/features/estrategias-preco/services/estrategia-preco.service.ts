@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 import { Observable } from 'rxjs';
 
 export interface EstrategiaPrecoRequest {
@@ -35,7 +36,7 @@ export interface EstrategiaPrecoResponse {
 })
 export class EstrategiaPrecoService {
 
-  private apiUrl = 'http://localhost:8080/estrategias-preco';
+  private apiUrl = `${environment.apiBaseUrl}/estrategias-preco`
 
   constructor(private http: HttpClient) {}
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 export interface CategoriaRequest {
   nome: string;
@@ -17,7 +18,7 @@ export interface CategoriaResponse {
 })
 export class CategoriaService {
 
-  private apiUrl = 'http://localhost:8080/categorias';
+  private apiUrl = `${environment.apiBaseUrl}/categorias`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,10 +1,42 @@
-# IntelliJ
+# =========================
+# IntelliJ / IDE
+# =========================
 .idea/
 *.iml
 
+# VS Code
+.vscode/
+
+# =========================
 # OS
+# =========================
 .DS_Store
 Thumbs.db
 
+# =========================
 # Logs
+# =========================
 *.log
+
+# =========================
+# Environment variables
+# =========================
+.env
+
+# =========================
+# Backend (Java / Maven)
+# =========================
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# =========================
+# Frontend (Angular / Node)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml

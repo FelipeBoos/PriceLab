@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
+import { environment } from '../../../../environments/environment';
 import { CategoriaResponse } from '../../categorias/services/categoria.service';
 
 export enum MoedaEnum {
@@ -60,7 +61,7 @@ export interface ProdutoResponse {
 })
 export class ProdutoService {
 
-  private apiUrl = 'http://localhost:8080/produtos';
+  private apiUrl = `${environment.apiBaseUrl}/produtos`;
 
   constructor(private http: HttpClient) {}
 
