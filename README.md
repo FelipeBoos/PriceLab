@@ -153,8 +153,6 @@ Execute os comandos abaixo no diretório em que o repositório foi clonado para 
 docker compose up --build
 ```
 
-> ⚠️ O nome da pasta pode variar dependendo do sistema (ex: `PriceLab` ou `pricelab`).
-
 ### 4. Acessar a aplicação
 
 Depois de subir a aplicação, os serviços ficam disponíveis em:
