@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/FelipeBoos/PriceLab/compare/v1.2.0...v1.3.0) (2026-04-22)
+
+
+### Features
+
+* dockerize application (backend, frontend, database) ([#9](https://github.com/FelipeBoos/PriceLab/issues/9)) ([c5fdc30](https://github.com/FelipeBoos/PriceLab/commit/c5fdc30e245815685eec7755137e093b46941d67))
+* **docker:** orchestrate full application stack with compose ([#9](https://github.com/FelipeBoos/PriceLab/issues/9)) ([fc4a9ce](https://github.com/FelipeBoos/PriceLab/commit/fc4a9ced8b5edc7903ca4ee4911289194b3fbb71))
+* **frontend:** centralize backend api base url in environment config ([#9](https://github.com/FelipeBoos/PriceLab/issues/9)) ([af0ac71](https://github.com/FelipeBoos/PriceLab/commit/af0ac715b8fb0f9e83791d3274d9efb3e9f3fe62))
+
 ## [1.2.0](https://github.com/FelipeBoos/PriceLab/compare/v1.1.0...v1.2.0) (2026-04-18)
 
 
