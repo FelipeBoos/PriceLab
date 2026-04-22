@@ -26,9 +26,12 @@ Desenvolvido por **Felipe Boos**
 ![Produtos](docs/screenshots/produtos_listagem.png)
 
 ## Categorias
+
+###  Cadastro de categorias
+![Categorias](docs/screenshots/categorias_cadastro_video.gif)
  
 ### Listagem de categorias
-![Categorias](docs/screenshots/categorias.png)
+![Categorias](docs/screenshots/categorias_listagem.png)
 
 ---
 
@@ -60,20 +63,22 @@ Desenvolvido por **Felipe Boos**
 
 ---
 
-## 🧠 Decisões Técnicas
+## Decisões Técnicas
 
 Algumas escolhas do projeto foram feitas com foco em escalabilidade, organização e boas práticas de desenvolvimento.
 
-### 🌍 Suporte a múltiplas moedas
+### <img src="docs/screenshots/icons/dollar-symbol.png" width="25" />  Suporte a múltiplas moedas
 
 Produtos podem ser cadastrados em BRL, USD ou EUR, com conversão automática para reais.
 
-**Motivação:**
-- Simular cenários reais de importação
-- Permitir análise financeira mais completa
-- Desacoplar moeda de origem do custo final
+**Foi utilizada a API [Frankfurter](https://www.frankfurter.dev/) para buscar valores atualizados para cotação das moedas estrangeiras.**
 
-### 📦 Flyway — Versionamento do Banco de Dados
+**Motivação:**
+- Abstrair a moeda como um atributo do produto, desacoplando o valor de entrada do custo final em BRL
+- Centralizar a lógica de conversão no backend, evitando cálculos distribuídos no frontend
+- Consumir cotações em tempo real via API externa para não depender de valores estáticos
+
+### <img src="docs/screenshots/icons/flyway.png" alt="Flyway" width="25" />  Flyway — Versionamento do Banco de Dados
 
 Utilizei o Flyway para versionamento das migrations do banco de dados.
 
@@ -82,7 +87,16 @@ Utilizei o Flyway para versionamento das migrations do banco de dados.
 - Evitar inconsistência entre ambientes
 - Facilitar evolução do banco de forma segura
 
-### Versionamento Semântico Automatizado (GitHub Actions)
+### <img src="docs/screenshots/icons/docker.png" alt="Docker" width="25" />  Docker - Containerização da aplicação
+
+A aplicação foi totalmente containerizada, incluindo backend, frontend e banco de dados.
+
+**Motivação:**
+- Padronizar o ambiente de execução
+- Facilitar o setup do projeto
+- Melhorar a portabilidade
+
+### <img src="docs/screenshots/icons/github.png" alt="Docker" width="25" /> Versionamento Semântico Automatizado (GitHub Actions)
 
 O versionamento do projeto é realizado automaticamente utilizando GitHub Actions com base em versionamento semântico.
 
@@ -103,6 +117,77 @@ O versionamento do projeto é realizado automaticamente utilizando GitHub Action
 
 ---
 
+# Executando o projeto
+
+## <img src="docs/screenshots/icons/docker.png" alt="Docker" width="25" /> Como executar com Docker 
+
+### Pré-requisitos
+
+- Docker Desktop instalado e em execução
+
+### 1. Clonar o repositório
+
+Clone o repositório na sua máquina executando os comandos abaixo:
+
+```bash
+git clone https://github.com/FelipeBoos/PriceLab.git
+```
+
+### 2. Criar o arquivo .env
+
+Copie o arquivo **.env.example** para **.env** executando o comando abaixo na raiz do projeto:
+
+```bash
+cd PriceLab
+cp .env.example .env
+```
+
+> ⚠️ O arquivo `.env` é obrigatório. Sem ele, o banco de dados não será iniciado corretamente.
+Obs: Se você alterar as credenciais do banco depois da primeira inicialização, pode ser necessário recriar o volume com o comando **docker compose down -v**.
+
+### 3. Subir toda a aplicação
+
+Execute os comandos abaixo no diretório em que o repositório foi clonado para executar a aplicação:
+
+```bash
+docker compose up --build
+```
+
+> ⚠️ O nome da pasta pode variar dependendo do sistema (ex: `PriceLab` ou `pricelab`).
+
+### 4. Acessar a aplicação
+
+Depois de subir a aplicação, os serviços ficam disponíveis em:
+
+- Frontend: `http://localhost:4200`
+- Backend: `http://localhost:8080`
+- PostgreSQL: `localhost:5433`
+
+### 5. Encerrar os containers
+
+Execute o comando abaixo na raiz do projeto:
+
+```bash
+docker compose down
+```
+
+### 6. Resetar o banco de dados (opcional)
+
+Se quiser iniciar com o banco limpo:
+
+```bash
+docker compose down -v
+```
+
+### Observações
+
+- As migrations do Flyway são executadas automaticamente ao iniciar o backend
+- Os dados do banco são persistidos em um volume Docker
+- O frontend é servido em container com Nginx
+- O backend consulta a API externa de câmbio para obter as cotações utilizadas nos cálculos de importação. Se quiser conferir a documentação do serviço, veja a [Frankfurter API](https://www.frankfurter.dev/).
+
+---
+
 ## Como executar localmente
 
 ### Pré-requisitos
@@ -112,19 +197,25 @@ O versionamento do projeto é realizado automaticamente utilizando GitHub Action
 - PostgreSQL rodando localmente
 - Angular CLI: `npm install -g @angular/cli`
 
-### 1. Configurar o banco de dados
+### 1. Criar o banco de dados
 
-Crie um banco PostgreSQL e configure as credenciais no `application.properties` (ou `application.yml`) do backend:
+Crie um banco PostgreSQL chamado pricelab.
 
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/pricelab
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+### 2. Configurar variáveis de ambiente do backend
+
+O backend lê as credenciais do banco por variáveis de ambiente. Exemplo no PowerShell:
+
+```PowerShell
+$env:SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/pricelab"
+$env:SPRING_DATASOURCE_USERNAME="postgres"
+$env:SPRING_DATASOURCE_PASSWORD="sua_senha"
 ```
 
 As migrations do Flyway serão aplicadas automaticamente ao iniciar o backend.
 
-### 2. Iniciar o Backend
+### 3. Iniciar o Backend
+
+Execute o comando abaixo no diretório em que o projeto foi clonado
 
 ```bash
 cd backend
@@ -133,7 +224,7 @@ cd backend
 
 API disponível em: `http://localhost:8080`
 
-### 3. Iniciar o Frontend
+### 4. Iniciar o Frontend
 
 ```bash
 cd frontend
@@ -158,15 +249,20 @@ cd backend
 
 ---
 
-## ⚙️ CI/CD — GitHub Actions
+## <img src="docs/screenshots/icons/github.png" alt="Docker" width="25" />  CI/CD — GitHub Actions
 
 O projeto conta com um workflow de integração contínua que executa os testes automaticamente em cada push ou pull request para a branch `main`.
 
-Arquivo de configuração: `.github/workflows/tests.yml`
+Workflows disponíveis:
+
+- backend-ci.yml
+- frontend-ci.yml
+- docker-ci.yml
+- release.yml
 
 ---
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 pricelab/
@@ -188,7 +284,7 @@ pricelab/
 
 ---
 
-## 📌 Status do Projeto
+## Status do Projeto
 
 🟡 **Em desenvolvimento**
 
