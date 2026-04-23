@@ -115,122 +115,7 @@ O versionamento do projeto é realizado automaticamente utilizando GitHub Action
 - **Análise financeira visual** — composição de custo, margem e imposto com gráfico interativo
 - **API REST** documentada e integrada ao frontend Angular (SPA)
 
----
 
-# Executando o projeto
-
-## <img src="docs/screenshots/icons/docker.png" alt="Docker" width="25" /> Como executar com Docker 
-
-### Pré-requisitos
-
-- Docker Desktop instalado e em execução
-
-### 1. Clonar o repositório
-
-Clone o repositório na sua máquina executando os comandos abaixo:
-
-```bash
-git clone https://github.com/FelipeBoos/PriceLab.git
-```
-
-### 2. Criar o arquivo .env
-
-Copie o arquivo **.env.example** para **.env** executando o comando abaixo na raiz do projeto:
-
-```bash
-cd PriceLab
-cp .env.example .env
-```
-
-> ⚠️ O arquivo `.env` é obrigatório. Sem ele, o banco de dados não será iniciado corretamente.
-Obs: Se você alterar as credenciais do banco depois da primeira inicialização, pode ser necessário recriar o volume com o comando **docker compose down -v**.
-
-### 3. Subir toda a aplicação
-
-Execute os comandos abaixo no diretório em que o repositório foi clonado para executar a aplicação:
-
-```bash
-docker compose up --build
-```
-
-### 4. Acessar a aplicação
-
-Depois de subir a aplicação, os serviços ficam disponíveis em:
-
-- Frontend: `http://localhost:4200`
-- Backend: `http://localhost:8080`
-- PostgreSQL: `localhost:5433`
-
-### 5. Encerrar os containers
-
-Execute o comando abaixo na raiz do projeto:
-
-```bash
-docker compose down
-```
-
-### 6. Resetar o banco de dados (opcional)
-
-Se quiser iniciar com o banco limpo:
-
-```bash
-docker compose down -v
-```
-
-### Observações
-
-- As migrations do Flyway são executadas automaticamente ao iniciar o backend
-- Os dados do banco são persistidos em um volume Docker
-- O frontend é servido em container com Nginx
-- O backend consulta a API externa de câmbio para obter as cotações utilizadas nos cálculos de importação. Se quiser conferir a documentação do serviço, veja a [Frankfurter API](https://www.frankfurter.dev/).
-
----
-
-## Como executar localmente
-
-### Pré-requisitos
-
-- Java 17+
-- Node.js 18+ e npm
-- PostgreSQL rodando localmente
-- Angular CLI: `npm install -g @angular/cli`
-
-### 1. Criar o banco de dados
-
-Crie um banco PostgreSQL chamado pricelab.
-
-### 2. Configurar variáveis de ambiente do backend
-
-O backend lê as credenciais do banco por variáveis de ambiente. Exemplo no PowerShell:
-
-```PowerShell
-$env:SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/pricelab"
-$env:SPRING_DATASOURCE_USERNAME="postgres"
-$env:SPRING_DATASOURCE_PASSWORD="sua_senha"
-```
-
-As migrations do Flyway serão aplicadas automaticamente ao iniciar o backend.
-
-### 3. Iniciar o Backend
-
-Execute o comando abaixo no diretório em que o projeto foi clonado
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-API disponível em: `http://localhost:8080`
-
-### 4. Iniciar o Frontend
-
-```bash
-cd frontend
-npm install
-ng serve
-```
-
-Aplicação disponível em: `http://localhost:4200`
 
 ---
 
@@ -298,6 +183,139 @@ pricelab/
 | Autenticação JWT | 🔲 Planejado |
 | Filtros e paginação | 🔲 Planejado |
 | Validações visuais no frontend | 🔲 Planejado |
+
+---
+
+# Como executar o projeto
+
+Existem três formas de executar o projeto: Acessando ao link da demo online, executando pelo Docker ou executando localmente na sua máquina.
+
+## <img src="docs/screenshots/icons/internet.png" alt="Internet" width="25" /> Acessando a demo online
+
+Você pode acessar a aplicação pelo link: [Price Lab](https://pricelab-app.onrender.com/)
+
+Frontend: https://pricelab-app.onrender.com  
+Backend API: https://pricelab-api.onrender.com
+
+### Exemplos de endpoints do backend: 
+- https://pricelab-api.onrender.com/categorias
+- https://pricelab-api.onrender.com/produtos
+- https://pricelab-api.onrender.com/estrategias-preco
+
+> Nota: o ambiente de demonstração utiliza plano gratuito do Render, então a primeira requisição após inatividade pode demorar alguns minutos.
+
+## <img src="docs/screenshots/icons/docker.png" alt="Docker" width="25" /> Executando com Docker
+
+### Pré-requisitos
+
+- Docker Desktop instalado e em execução
+
+### 1. Clonar o repositório
+
+Clone o repositório na sua máquina executando os comandos abaixo:
+
+```bash
+git clone https://github.com/FelipeBoos/PriceLab.git
+```
+
+### 2. Criar o arquivo .env
+
+Copie o arquivo **.env.example** para **.env** executando o comando abaixo na raiz do projeto:
+
+```bash
+cd PriceLab
+cp .env.example .env
+```
+
+> ⚠️ O arquivo `.env` é obrigatório. Sem ele, o banco de dados não será iniciado corretamente.
+Obs: Se você alterar as credenciais do banco depois da primeira inicialização, pode ser necessário recriar o volume com o comando **docker compose down -v**.
+
+### 3. Subir toda a aplicação
+
+Execute os comandos abaixo no diretório em que o repositório foi clonado para executar a aplicação:
+
+```bash
+docker compose up --build
+```
+
+### 4. Acessar a aplicação
+
+Depois de subir a aplicação, os serviços ficam disponíveis em:
+
+- Frontend: `http://localhost:4200`
+- Backend: `http://localhost:8080`
+- PostgreSQL: `localhost:5433`
+
+### 5. Encerrar os containers
+
+Execute o comando abaixo na raiz do projeto:
+
+```bash
+docker compose down
+```
+
+### 6. Resetar o banco de dados (opcional)
+
+Se quiser iniciar com o banco limpo:
+
+```bash
+docker compose down -v
+```
+
+### Observações
+
+- As migrations do Flyway são executadas automaticamente ao iniciar o backend
+- Os dados do banco são persistidos em um volume Docker
+- O frontend é servido em container com Nginx
+- O backend consulta a API externa de câmbio para obter as cotações utilizadas nos cálculos de importação. Se quiser conferir a documentação do serviço, veja a [Frankfurter API](https://www.frankfurter.dev/).
+
+---
+
+## <img src="docs/screenshots/icons/computer.png" alt="Computer" width="25" /> Executando localmente
+
+### Pré-requisitos
+
+- Java 17+
+- Node.js 18+ e npm
+- PostgreSQL rodando localmente
+- Angular CLI: `npm install -g @angular/cli`
+
+### 1. Criar o banco de dados
+
+Crie um banco PostgreSQL chamado pricelab.
+
+### 2. Configurar variáveis de ambiente do backend
+
+O backend lê as credenciais do banco por variáveis de ambiente. Exemplo no PowerShell:
+
+```PowerShell
+$env:SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/pricelab"
+$env:SPRING_DATASOURCE_USERNAME="postgres"
+$env:SPRING_DATASOURCE_PASSWORD="sua_senha"
+```
+
+As migrations do Flyway serão aplicadas automaticamente ao iniciar o backend.
+
+### 3. Iniciar o Backend
+
+Execute o comando abaixo no diretório em que o projeto foi clonado
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+API disponível em: `http://localhost:8080`
+
+### 4. Iniciar o Frontend
+
+```bash
+cd frontend
+npm install
+ng serve
+```
+
+Aplicação disponível em: `http://localhost:4200`
 
 ---
 

@@ -42,7 +42,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy 
 
   resultadoSimulacao: EstrategiaPrecoResponse | null = null;
   produtos = signal<ProdutoResponse[]>([]);
-  mensagemToastSucesso: string | null = null;
+  mensagemToast: string | null = null;
 
   private grafico: Chart | null = null;
   private viewInicializada = false;
@@ -94,7 +94,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy 
       this.margemLucro === null ||
       this.percentualImposto === null
     ) {
-      alert('Preencha todos os campos');
+      this.exibirToast('Preencha todos os campos.');
       return;
     }
 
@@ -190,12 +190,12 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy 
 
   salvarEstrategia(): void {
     if (!this.resultadoSimulacao) {
-      alert('Faça a simulação antes de salvar a estratégia.');
+      this.exibirToast('Faça a simulação antes de salvar a estratégia.');
       return;
     }
 
     if (this.temAvisosCriticos()) {
-      alert('Não é possível salvar uma estratégia com demanda zerada. Ajuste os parâmetros.');
+      this.exibirToast('Não é possível salvar uma estratégia com demanda zerada. Ajuste os parâmetros.');
       return;
     }
 
@@ -208,7 +208,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy 
     this.estrategiaPrecoService.salvarEstrategiaPreco(estrategiaPrecoRequest).subscribe({
       next: (resposta) => {
         this.resultadoSimulacao = { ...resposta };
-        this.exibirToastSucesso('Estratégia salva com sucesso.');
+        this.exibirToast('Estratégia salva com sucesso.');
 
         sessionStorage.setItem('estrategiaPrecoToastSucesso', 'Estratégia salva com sucesso.');
 
@@ -222,26 +222,26 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy 
       },
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao salvar estratégia:', erro);
-        alert('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
+        this.exibirToast('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
       }
     });
   }
 
-  private exibirToastSucesso(mensagem: string): void {
-    this.mensagemToastSucesso = mensagem;
+  private exibirToast(mensagem: string): void {
+    this.mensagemToast = mensagem;
 
     if (this.toastSucessoTimeoutId) {
       clearTimeout(this.toastSucessoTimeoutId);
     }
 
     this.toastSucessoTimeoutId = setTimeout(() => {
-      this.mensagemToastSucesso = null;
+      this.mensagemToast = null;
       this.toastSucessoTimeoutId = null;
     }, 4000);
   }
 
-  fecharToastSucesso(): void {
-    this.mensagemToastSucesso = null;
+  fecharToast(): void {
+    this.mensagemToast = null;
 
     if (this.toastSucessoTimeoutId) {
       clearTimeout(this.toastSucessoTimeoutId);
