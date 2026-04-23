@@ -14,6 +14,8 @@ import { EstrategiaPrecoService, EstrategiaPrecoResponse } from './services/estr
 })
 export class EstrategiasPreco implements OnInit {
   estrategiasPreco = signal<EstrategiaPrecoResponse[]>([]);
+  mensagemToastSucesso: string | null = null;
+  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private estrategiaPrecoService: EstrategiaPrecoService,
@@ -22,6 +24,40 @@ export class EstrategiasPreco implements OnInit {
 
   ngOnInit(): void {
     this.carregarEstrategiasPreco();
+    this.exibirToastSucessoAoAbrir();
+  }
+
+  private exibirToastSucessoAoAbrir(): void {
+    const mensagem = sessionStorage.getItem('estrategiaPrecoToastSucesso');
+
+    if (!mensagem) {
+      return;
+    }
+
+    sessionStorage.removeItem('estrategiaPrecoToastSucesso');
+    this.exibirToastSucesso(mensagem);
+  }
+
+  private exibirToastSucesso(mensagem: string): void {
+    this.mensagemToastSucesso = mensagem;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+    }
+
+    this.toastSucessoTimeoutId = setTimeout(() => {
+      this.mensagemToastSucesso = null;
+      this.toastSucessoTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToastSucesso(): void {
+    this.mensagemToastSucesso = null;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
   }
 
   carregarEstrategiasPreco(): void {

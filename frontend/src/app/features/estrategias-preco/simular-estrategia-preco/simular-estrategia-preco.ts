@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   AfterViewInit,
   signal,
   ViewChild,
@@ -32,7 +33,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
   templateUrl: './simular-estrategia-preco.html',
   styleUrls: ['./simular-estrategia-preco.css'],
 })
-export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
+export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('graficoRosca') graficoRoscaRef?: ElementRef<HTMLCanvasElement>;
 
   produtoId: number | null = null;
@@ -41,9 +42,12 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
   resultadoSimulacao: EstrategiaPrecoResponse | null = null;
   produtos = signal<ProdutoResponse[]>([]);
+  mensagemToastSucesso: string | null = null;
 
   private grafico: Chart | null = null;
   private viewInicializada = false;
+  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private redirecionarTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private estrategiaPrecoService: EstrategiaPrecoService,
@@ -59,6 +63,18 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.viewInicializada = true;
     this.criarOuAtualizarGrafico();
+  }
+
+  ngOnDestroy(): void {
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
+
+    if (this.redirecionarTimeoutId) {
+      clearTimeout(this.redirecionarTimeoutId);
+      this.redirecionarTimeoutId = null;
+    }
   }
 
   carregarProdutos(): void {
@@ -192,13 +208,45 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
     this.estrategiaPrecoService.salvarEstrategiaPreco(estrategiaPrecoRequest).subscribe({
       next: (resposta) => {
         this.resultadoSimulacao = { ...resposta };
-        alert('Estratégia salva com sucesso.');
+        this.exibirToastSucesso('Estratégia salva com sucesso.');
+
+        sessionStorage.setItem('estrategiaPrecoToastSucesso', 'Estratégia salva com sucesso.');
+
+        if (this.redirecionarTimeoutId) {
+          clearTimeout(this.redirecionarTimeoutId);
+        }
+
+        this.redirecionarTimeoutId = setTimeout(() => {
+          this.router.navigate(['/app/estrategias-preco']);
+        }, 1200);
       },
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao salvar estratégia:', erro);
         alert('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
       }
     });
+  }
+
+  private exibirToastSucesso(mensagem: string): void {
+    this.mensagemToastSucesso = mensagem;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+    }
+
+    this.toastSucessoTimeoutId = setTimeout(() => {
+      this.mensagemToastSucesso = null;
+      this.toastSucessoTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToastSucesso(): void {
+    this.mensagemToastSucesso = null;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
   }
 
   resetarFormulario(): void {
