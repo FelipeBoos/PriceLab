@@ -14,6 +14,8 @@ import { EstrategiaPrecoService, EstrategiaPrecoResponse } from './services/estr
 })
 export class EstrategiasPreco implements OnInit {
   estrategiasPreco = signal<EstrategiaPrecoResponse[]>([]);
+  mensagemToast: string | null = null;
+  private toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private estrategiaPrecoService: EstrategiaPrecoService,
@@ -22,6 +24,40 @@ export class EstrategiasPreco implements OnInit {
 
   ngOnInit(): void {
     this.carregarEstrategiasPreco();
+    this.exibirToastSucessoAoAbrir();
+  }
+
+  private exibirToastSucessoAoAbrir(): void {
+    const mensagem = sessionStorage.getItem('estrategiaPrecoToastSucesso');
+
+    if (!mensagem) {
+      return;
+    }
+
+    sessionStorage.removeItem('estrategiaPrecoToastSucesso');
+    this.exibirToast(mensagem);
+  }
+
+  private exibirToast(mensagem: string): void {
+    this.mensagemToast = mensagem;
+
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+    }
+
+    this.toastTimeoutId = setTimeout(() => {
+      this.mensagemToast = null;
+      this.toastTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToast(): void {
+    this.mensagemToast = null;
+
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+      this.toastTimeoutId = null;
+    }
   }
 
   carregarEstrategiasPreco(): void {
@@ -37,7 +73,7 @@ export class EstrategiasPreco implements OnInit {
   }
 
   botaoFiltrar(): void {
-    alert('Botão filtrar: ainda não implementado');
+    this.exibirToast('Botão filtrar: ainda não implementado.');
   }
 
   botaoSimular(): void {
@@ -58,8 +94,11 @@ export class EstrategiasPreco implements OnInit {
         console.error('Erro ao deletar estratégia de preço:', erro);
 
         if (erro.status === 404) {
-          alert('Estratégia de preço não encontrada');
+          this.exibirToast('Estratégia de preço não encontrada.');
+          return;
         }
+
+        this.exibirToast('Ocorreu um erro ao excluir a estratégia de preço.');
       }
     });
   }
