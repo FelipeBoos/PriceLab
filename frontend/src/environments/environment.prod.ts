@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://pricelab-app.onrender.com'
+    apiUrl: 'https://pricelab-api.onrender.com'
 };
