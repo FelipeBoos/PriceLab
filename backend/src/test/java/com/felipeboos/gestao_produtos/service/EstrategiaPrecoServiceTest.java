@@ -370,4 +370,165 @@ public class EstrategiaPrecoServiceTest {
         verify(repository, times(1)).existsById(1L);
         verify(repository, never()).deleteById(anyLong());
     }
+
+    @Test
+    @DisplayName("T14 - Deve manter demanda base quando preco sugerido for igual ao preco base")
+    void t14_deveManterDemandaBaseQuandoPrecoSugeridoForIgualAoPrecoBase() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100.00))
+                .precoCustoEmReais(BigDecimal.valueOf(100.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(100.00))
+                .demandaBase(100)
+                .fatorElasticidade(BigDecimal.valueOf(1.5))
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.ZERO);
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(100.00)));
+        assertEquals(100, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("T15 - Deve reduzir demanda quando preco sugerido for maior que preco base")
+    void t15_deveReduzirDemandaQuandoPrecoSugeridoForMaiorQuePrecoBase() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100.00))
+                .precoCustoEmReais(BigDecimal.valueOf(100.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(100.00))
+                .demandaBase(1000)
+                .fatorElasticidade(BigDecimal.valueOf(1.5))
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.valueOf(20));
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(120.00)));
+        assertEquals(700, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("T16 - Deve aumentar demanda quando preco sugerido for menor que preco base")
+    void t16_deveAumentarDemandaQuandoPrecoSugeridoForMenorQuePrecoBase() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100.00))
+                .precoCustoEmReais(BigDecimal.valueOf(100.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(100.00))
+                .demandaBase(1000)
+                .fatorElasticidade(BigDecimal.valueOf(1.5))
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.valueOf(-20));
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(80.00)));
+        assertEquals(1300, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("T17 - Deve impedir demanda negativa quando elasticidade for alta")
+    void t17_deveImpedirDemandaNegativaQuandoElasticidadeForAlta() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100.00))
+                .precoCustoEmReais(BigDecimal.valueOf(100.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(100.00))
+                .demandaBase(1000)
+                .fatorElasticidade(BigDecimal.valueOf(2.0))
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.valueOf(100));
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(200.00)));
+        assertEquals(0, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("T18 - Deve manter demanda base quando preco base for zero")
+    void t18_deveManterDemandaBaseQuandoPrecoBaseForZero() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.ZERO)
+                .precoCustoEmReais(BigDecimal.ZERO)
+                .custoFinalAquisicao(BigDecimal.ZERO)
+                .demandaBase(100)
+                .fatorElasticidade(BigDecimal.valueOf(1.5))
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.valueOf(20));
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(100, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("T19 - Deve manter demanda base quando fator de elasticidade for nulo")
+    void t19_deveManterDemandaBaseQuandoFatorElasticidadeForNulo() {
+        produto = Produto.builder()
+                .id(1L)
+                .nome("Produto teste")
+                .categoria(categoria)
+                .precoCusto(BigDecimal.valueOf(100.00))
+                .precoCustoEmReais(BigDecimal.valueOf(100.00))
+                .custoFinalAquisicao(BigDecimal.valueOf(100.00))
+                .demandaBase(1000)
+                .fatorElasticidade(null)
+                .build();
+
+        requestDTO.setMargemLucro(BigDecimal.valueOf(20));
+        requestDTO.setPercentualImposto(BigDecimal.ZERO);
+
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        EstrategiaPrecoResponseDTO response = service.simularPreco(requestDTO);
+
+        assertEquals(0, response.getPrecoSugerido().compareTo(BigDecimal.valueOf(120.00)));
+        assertEquals(1000, response.getDemandaEstimada());
+
+        verify(produtoRepository, times(1)).findById(1L);
+    }
 }
