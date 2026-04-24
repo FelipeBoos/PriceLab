@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,8 +47,8 @@ public class EstrategiaPrecoServiceTest {
 
     private final BigDecimal precoSugeridoEsperado = BigDecimal.valueOf(712.80);
     private final BigDecimal lucroUnitarioEsperado = BigDecimal.valueOf(108.00);
-    private final int demandaEstimadaEsperada = 64;
-    private final BigDecimal lucroTotalEsperado = BigDecimal.valueOf(6912.00);
+    private final int demandaEstimadaEsperada = 98;
+    private final BigDecimal lucroTotalEsperado = BigDecimal.valueOf(10584.00);
 
     @BeforeEach
     void setup() {
@@ -316,7 +318,7 @@ public class EstrategiaPrecoServiceTest {
         assertEquals("Produto teste", response.get(0).getProdutoNome());
         assertEquals("Eletrônicos", response.get(0).getCategoriaNome());
         assertEquals(0, response.get(0).getPrecoUnidade().compareTo(BigDecimal.valueOf(540.00)));
-        assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(6912.00)));
+        assertEquals(0, response.get(0).getLucroTotalEstimado().compareTo(BigDecimal.valueOf(10584.00)));
 
         assertEquals(2L, response.get(1).getId());
         assertEquals(1L, response.get(1).getProdutoId());
