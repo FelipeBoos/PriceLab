@@ -11,7 +11,8 @@ on:
       - ".github/workflows/backend-ci.yml"
 
 jobs:
-  compile-backend:
+  compile-backend-app:
+    name: Compile Spring Boot backend
     runs-on: ubuntu-latest
 
     defaults:
@@ -32,12 +33,13 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
-      - name: Compile backend
+      - name: Compile backend application
         run: ./mvnw -B clean compile
 
-  test-backend:
+  run-backend-tests:
+    name: Run backend tests
     runs-on: ubuntu-latest
-    needs: compile-backend
+    needs: compile-backend-app
 
     defaults:
       run:
@@ -57,10 +59,10 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
-      - name: Run backend tests
+      - name: Run backend unit tests
         run: ./mvnw -B test
 
-      - name: Print Surefire Reports
+      - name: Print Surefire reports on failure
         if: failure()
         run: |
           echo "=== Surefire files ==="
@@ -72,7 +74,7 @@ jobs:
           echo "=== EstrategiaPrecoRepositoryTest ==="
           cat target/surefire-reports/com.felipeboos.gestao_produtos.repository.EstrategiaPrecoRepositoryTest.txt || true
 
-      - name: Upload Surefire reports
+      - name: Upload backend Surefire test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
