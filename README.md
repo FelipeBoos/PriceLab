@@ -56,10 +56,14 @@ Desenvolvido por **Felipe Boos**
 | TypeScript | Linguagem principal |
 | HTML / CSS | Interface |
 
-### DevOps
+### DevOps & Observabilidade
 | Tecnologia | Uso |
 |---|---|
+| Docker | Containerização da aplicação |
 | GitHub Actions | CI/CD com workflow de testes automatizados |
+| Spring Boot Actuator | Health checks e métricas da aplicação |
+| Prometheus | Coleta de métricas |
+| Grafana | Dashboards e visualização de métricas |
 
 ---
 
@@ -105,6 +109,23 @@ O versionamento do projeto é realizado automaticamente utilizando GitHub Action
 - Evitar versionamento manual e erros humanos
 - Gerar histórico claro de mudanças (features, correções, refactors)
 
+### <img src="docs/screenshots/icons/grafana.png" width="25" /> Observabilidade — Actuator, Prometheus e Grafana
+
+O projeto possui monitoramento e observabilidade utilizando Spring Boot Actuator, Prometheus e Grafana.
+
+Foram adicionados:
+- Health checks da aplicação e banco de dados
+- Métricas HTTP da API
+- Métricas JVM
+- Métricas de conexões do banco
+- Dashboards customizados no Grafana
+
+**Motivação:**
+- Facilitar troubleshooting e debugging
+- Melhorar visibilidade da aplicação
+- Permitir monitoramento de performance
+- Preparar o projeto para ambientes mais próximos de produção
+
 ---
 
 ## Funcionalidades
@@ -114,8 +135,7 @@ O versionamento do projeto é realizado automaticamente utilizando GitHub Action
 - **Simulação de Estratégias de Preço** — cálculo de preço sugerido com base em margem de lucro, impostos e elasticidade de demanda
 - **Análise financeira visual** — composição de custo, margem e imposto com gráfico interativo
 - **API REST** documentada e integrada ao frontend Angular (SPA)
-
-
+- **Observabilidade e Monitoramento** — métricas da aplicação, health checks e dashboards Grafana integrados ao Prometheus
 
 ---
 
@@ -180,6 +200,8 @@ pricelab/
 | Integração Angular + REST API | ✅ Concluído |
 | GitHub Actions (CI com testes) | ✅ Concluído |
 | Testes unitários (JUnit) | ✅ Concluído |
+| Observabilidade com Prometheus + Grafana | ✅ Concluído |
+| Health Checks Docker e Backend | ✅ Concluído |
 | Autenticação JWT | 🔲 Planejado |
 | Filtros e paginação | 🔲 Planejado |
 | Validações visuais no frontend | 🔲 Planejado |
@@ -243,8 +265,10 @@ docker compose up --build
 Depois de subir a aplicação, os serviços ficam disponíveis em:
 
 - Frontend: `http://localhost:4200`
-- Backend: `http://localhost:8080`
+- Backend API: `http://localhost:8080`
 - PostgreSQL: `localhost:5433`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
 
 ### 5. Encerrar os containers
 
