@@ -120,6 +120,7 @@ public class EstrategiaPrecoService {
 
         Integer demandaEstimada = calcularDemandaEstimada(
                 produto.getDemandaBase(),
+                basePreco,
                 precoSugerido,
                 produto.getFatorElasticidade()
         );
@@ -198,18 +199,45 @@ public class EstrategiaPrecoService {
     }
 
     private Integer calcularDemandaEstimada(
-            Integer demandaBase,
-            BigDecimal precoSugerido,
-            BigDecimal fatorElasticidade
-    ) {
-        Integer quedaEstimadaVendas = precoSugerido.multiply(fatorElasticidade)
+                Integer demandaBase,
+                BigDecimal precoBase,
+                BigDecimal precoSugerido,
+                BigDecimal fatorElasticidade
+        ) {
+        if (demandaBase == null || demandaBase <= 0) {
+                return 0;
+        }
+
+        if (precoBase == null || precoBase.compareTo(BigDecimal.ZERO) <= 0) {
+                return demandaBase;
+        }
+
+        if (precoSugerido == null) {
+                return demandaBase;
+        }
+
+        if (fatorElasticidade == null) {
+                fatorElasticidade = BigDecimal.ZERO;
+        }
+
+        BigDecimal variacaoPercentualPreco = precoSugerido
+                .subtract(precoBase)
+                .divide(precoBase, SCALE_PERCENTUAL, RoundingMode.HALF_UP);
+
+        BigDecimal variacaoPercentualDemanda = variacaoPercentualPreco
+                .multiply(fatorElasticidade);
+
+        BigDecimal fatorDemanda = BigDecimal.ONE.subtract(variacaoPercentualDemanda);
+
+        BigDecimal demandaCalculada = BigDecimal.valueOf(demandaBase)
+                .multiply(fatorDemanda);
+
+        int demandaEstimada = demandaCalculada
                 .setScale(0, RoundingMode.HALF_UP)
                 .intValue();
 
-        Integer demandaEstimada = demandaBase - quedaEstimadaVendas;
-
         return Math.max(demandaEstimada, 0);
-    }
+        }
 
     private BigDecimal calcularImpostoTotal(
             BigDecimal impostoUnitario,
@@ -268,42 +296,51 @@ public class EstrategiaPrecoService {
         return BigDecimal.ZERO.setScale(SCALE_MONETARIO, RoundingMode.HALF_UP);
     }
 
-    private List<String> gerarAvisosEstrategia(EstrategiaPreco estrategiaPreco) {
+        private List<String> gerarAvisosEstrategia(EstrategiaPreco estrategiaPreco) {
         List<String> avisos = new ArrayList<>();
 
         if (estrategiaPreco == null || estrategiaPreco.getProduto() == null) {
-            return avisos;
+                return avisos;
         }
 
         if (estrategiaPreco.getDemandaEstimada() != null && estrategiaPreco.getDemandaEstimada() <= 0) {
-            BigDecimal fatorElasticidade = estrategiaPreco.getProduto().getFatorElasticidade();
-            String avisoTexto = "⚠️ Demanda estimada zerada: O fator de elasticidade do produto ("
-                    + String.format("%.2f", fatorElasticidade) + ") resultou em uma demanda estimada nula para a margem de lucro informada ("
-                    + String.format("%.2f", estrategiaPreco.getMargemLucro()) + "%). "
-                    + "Isso significa que o preço sugerido é tão alto que o produto não teria vendas estimadas. "
-                    + "Considere aumentar o fator de elasticidade do produto, aumentar a demanda base ou reduzir a margem de lucro.";
-            avisos.add(avisoTexto);
+                BigDecimal fatorElasticidade = estrategiaPreco.getProduto().getFatorElasticidade();
+
+                String avisoTexto = "⚠️ Demanda estimada zerada: A variação percentual entre o preço base e o preço sugerido, "
+                        + "combinada com o fator de elasticidade do produto ("
+                        + String.format("%.2f", fatorElasticidade != null ? fatorElasticidade : BigDecimal.ZERO)
+                        + "), resultou em uma demanda estimada nula para a margem de lucro informada ("
+                        + String.format("%.2f", estrategiaPreco.getMargemLucro())
+                        + "%). Considere reduzir a margem de lucro, revisar o preço base, revisar a demanda base "
+                        + "ou ajustar o fator de elasticidade do produto.";
+
+                avisos.add(avisoTexto);
         }
 
         if (estrategiaPreco.getLucroTotalEstimado() != null
                 && estrategiaPreco.getLucroTotalEstimado().compareTo(BigDecimal.ZERO) <= 0) {
-            avisos.add("⚠️ Lucro total zerado: A estratégia resultou em lucro total estimado igual a zero. "
-                    + "Não há viabilidade econômica nesta configuração.");
+                avisos.add("⚠️ Lucro total zerado: A estratégia resultou em lucro total estimado igual a zero. "
+                        + "Não há viabilidade econômica nesta configuração.");
         }
 
         Integer demandaBase = estrategiaPreco.getProduto().getDemandaBase();
+
         if (demandaBase != null
                 && demandaBase > 0
                 && estrategiaPreco.getDemandaEstimada() != null
                 && estrategiaPreco.getDemandaEstimada() < demandaBase * 0.1) {
-            double percentualDemanda = (estrategiaPreco.getDemandaEstimada().doubleValue()
-                    / demandaBase.doubleValue()) * 100;
-            String avisoTexto = "ℹ️ Demanda crítica: A demanda estimada ("
-                    + String.format("%.1f", percentualDemanda) + "% da demanda base) é muito baixa. "
-                    + "Revise a margem de lucro ou o fator de elasticidade do produto.";
-            avisos.add(avisoTexto);
+
+                double percentualDemanda = (estrategiaPreco.getDemandaEstimada().doubleValue()
+                        / demandaBase.doubleValue()) * 100;
+
+                String avisoTexto = "ℹ️ Demanda crítica: A demanda estimada ("
+                        + String.format("%.1f", percentualDemanda)
+                        + "% da demanda base) é muito baixa. "
+                        + "Revise a margem de lucro, o preço base ou o fator de elasticidade do produto.";
+
+                avisos.add(avisoTexto);
         }
 
         return avisos;
-    }
+        }
 }

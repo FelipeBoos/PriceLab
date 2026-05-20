@@ -4,12 +4,11 @@ import { ProdutoService, ProdutoResponse, MoedaEnum } from './services/produto.s
 import { HttpErrorResponse } from '@angular/common/http';
 import { CategoriaResponse, CategoriaService } from '../categorias/services/categoria.service';
 import { Modal } from '../../shared/components/modal/modal/modal';
-import { NgxMaskDirective } from 'ngx-mask';
 
 @Component({
   selector: 'app-produtos',
   standalone: true,
-  imports: [FormsModule, Modal, NgxMaskDirective],
+  imports: [FormsModule, Modal],
   templateUrl: './produtos.html',
   styleUrl: './produtos.css',
 })
@@ -41,8 +40,8 @@ export class Produtos implements OnInit {
 
   exibirFormulario = false;
   produtoEmEdicaoId: number | null = null;
-  mensagemToastSucesso: string | null = null;
-  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  mensagemToast: string | null = null;
+  private toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   get produtoImportado(): boolean {
     return this.importado;
@@ -142,25 +141,25 @@ export class Produtos implements OnInit {
       : 'Custo final de aquisição';
   }
 
-  private exibirToastSucesso(mensagem: string): void {
-    this.mensagemToastSucesso = mensagem;
+  private exibirToast(mensagem: string): void {
+    this.mensagemToast = mensagem;
 
-    if (this.toastSucessoTimeoutId) {
-      clearTimeout(this.toastSucessoTimeoutId);
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
     }
 
-    this.toastSucessoTimeoutId = setTimeout(() => {
-      this.mensagemToastSucesso = null;
-      this.toastSucessoTimeoutId = null;
+    this.toastTimeoutId = setTimeout(() => {
+      this.mensagemToast = null;
+      this.toastTimeoutId = null;
     }, 4000);
   }
 
-  fecharToastSucesso(): void {
-    this.mensagemToastSucesso = null;
+  fecharToast(): void {
+    this.mensagemToast = null;
 
-    if (this.toastSucessoTimeoutId) {
-      clearTimeout(this.toastSucessoTimeoutId);
-      this.toastSucessoTimeoutId = null;
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+      this.toastTimeoutId = null;
     }
   }
 
@@ -235,10 +234,28 @@ export class Produtos implements OnInit {
     this.freteInternacional = numero ?? 0;
   }
 
+  onFreteInternacionalBlur(): void {
+    const numero = this.parseValorMonetarioMascara(this.freteInternacionalInput, false);
+    this.freteInternacional = numero ?? 0;
+
+    if (numero !== null) {
+      this.freteInternacionalInput = this.formatarValorParaMascara(numero, false);
+    }
+  }
+
   onSeguroInternacionalInputChange(valor: string): void {
     this.seguroInternacionalInput = valor ?? '';
     const numero = this.parseValorMonetarioMascara(this.seguroInternacionalInput, false);
     this.seguroInternacional = numero ?? 0;
+  }
+
+  onSeguroInternacionalBlur(): void {
+    const numero = this.parseValorMonetarioMascara(this.seguroInternacionalInput, false);
+    this.seguroInternacional = numero ?? 0;
+
+    if (numero !== null) {
+      this.seguroInternacionalInput = this.formatarValorParaMascara(numero, false);
+    }
   }
 
   onAliquotaIcmsImportacaoChange(valor: number | null): void {
@@ -254,7 +271,7 @@ export class Produtos implements OnInit {
       return '';
     }
 
-    return this.formatarMoeda(valor, false);
+    return this.formatarValorParaMascara(valor, false);
   }
 
   private sincronizarCamposImportacao(): void {
@@ -270,6 +287,14 @@ export class Produtos implements OnInit {
   private formatarMoeda(valor: number, formatoEstrangeiro: boolean): string {
     const locale = formatoEstrangeiro ? 'en-US' : 'pt-BR';
     return valor.toLocaleString(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  private formatarValorParaMascara(valor: number, formatoEstrangeiro: boolean): string {
+    const locale = formatoEstrangeiro ? 'en-US' : 'pt-BR';
+    return this.arredondarMoeda(valor).toLocaleString(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -306,13 +331,36 @@ export class Produtos implements OnInit {
 
   onPrecoCustoInputChange(valor: string): void {
     this.precoCustoInput = valor ?? '';
-    this.precoCusto = this.parseValorMonetarioMascara(this.precoCustoInput, this.moedaEstrangeiraSelecionada);
+    const numero = this.parseValorMonetarioMascara(this.precoCustoInput, this.moedaEstrangeiraSelecionada);
+    this.precoCusto = numero;
+
+    this.atualizarCustoEmBrlCalculado();
+  }
+
+  onPrecoCustoBlur(): void {
+    const numero = this.parseValorMonetarioMascara(this.precoCustoInput, this.moedaEstrangeiraSelecionada);
+    this.precoCusto = numero;
+
+    if (numero !== null) {
+      this.precoCustoInput = this.formatarValorParaMascara(numero, this.moedaEstrangeiraSelecionada);
+    }
+
     this.atualizarCustoEmBrlCalculado();
   }
 
   onPrecoVendaInputChange(valor: string): void {
     this.precoVendaInput = valor ?? '';
-    this.precoVenda = this.parseValorMonetarioMascara(this.precoVendaInput, false);
+    const numero = this.parseValorMonetarioMascara(this.precoVendaInput, false);
+    this.precoVenda = numero;
+  }
+
+  onPrecoVendaBlur(): void {
+    const numero = this.parseValorMonetarioMascara(this.precoVendaInput, false);
+    this.precoVenda = numero;
+
+    if (numero !== null) {
+      this.precoVendaInput = this.formatarValorParaMascara(numero, false);
+    }
   }
 
   botaoSalvar() {
@@ -324,7 +372,7 @@ export class Produtos implements OnInit {
       this.demandaBase === null ||
       this.fatorElasticidade === null
     ) {
-      alert("Preencha todos os campos");
+      this.exibirToast('Preencha todos os campos.');
       return;
     }
 
@@ -351,7 +399,7 @@ export class Produtos implements OnInit {
         .cadastrarProduto(produto)
         .subscribe({
           next: () => {
-            this.exibirToastSucesso('Produto cadastrado com sucesso.');
+            this.exibirToast('Produto cadastrado com sucesso.');
             this.resetarFormulario();
             this.carregarProdutos();
           }
@@ -362,7 +410,7 @@ export class Produtos implements OnInit {
         .atualizarProduto(this.produtoEmEdicaoId, produto)
         .subscribe({
           next: () => {
-            alert('Produto atualizado com sucesso');
+            this.exibirToast('Produto atualizado com sucesso.');
             this.resetarFormulario();
             this.carregarProdutos();  
           }
@@ -376,7 +424,7 @@ export class Produtos implements OnInit {
   }
 
   filtrarProduto() {
-    alert("Filtrar produto: Ainda não implementado");
+    this.exibirToast('Filtrar produto: ainda não implementado.');
   }
 
   editarProduto(id: number) {
@@ -419,18 +467,18 @@ export class Produtos implements OnInit {
     this.produtoService.deletarProduto(id).subscribe({
       next: () => {
         console.log('Produto deletado: ', id);
-        alert('Produto deletado com sucesso');
+        this.exibirToast('Produto deletado com sucesso.');
         this.carregarProdutos();
       },
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao excluir produto:', erro);
 
         if (erro.status === 404) {
-          alert('Produto não encontrado');
+          this.exibirToast('Produto não encontrado.');
           return;
         }
 
-        alert('Ocorreu um erro ao excluir o produto');
+        this.exibirToast('Ocorreu um erro ao excluir o produto.');
       }
     });
   }
@@ -537,12 +585,12 @@ export class Produtos implements OnInit {
 
   private sincronizarCamposMonetarios(): void {
     this.sincronizarPrecoCustoInput();
-    this.precoVendaInput = this.precoVenda !== null ? this.formatarMoeda(this.precoVenda, false) : '';
+    this.precoVendaInput = this.precoVenda !== null ? this.formatarValorParaMascara(this.precoVenda, false) : '';
   }
 
   private sincronizarPrecoCustoInput(): void {
     this.precoCustoInput = this.precoCusto !== null
-      ? this.formatarMoeda(this.precoCusto, this.moedaEstrangeiraSelecionada)
+      ? this.formatarValorParaMascara(this.precoCusto, this.moedaEstrangeiraSelecionada)
       : '';
   }
 }

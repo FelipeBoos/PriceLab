@@ -1,5 +1,29 @@
 <section class="simulacao-page">
     <div class="page-shell">
+        @if (mensagemToast; as mensagem) {
+            <div class="toast-sucesso-container">
+                <div class="aviso-item aviso-sucesso">
+                    <span class="aviso-icone" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                    </span>
+
+                    <div class="aviso-texto">
+                        <span class="aviso-titulo">Notificação</span>
+                        <span>{{ mensagem }}</span>
+                    </div>
+
+                    <button type="button" class="aviso-close" (click)="fecharToast()" aria-label="Fechar aviso">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6 6 18"></path>
+                            <path d="M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        }
+
         <div class="header-simulacao">
             <div class="header-topo">
                 <button type="button" class="btn-voltar" (click)="voltar()">

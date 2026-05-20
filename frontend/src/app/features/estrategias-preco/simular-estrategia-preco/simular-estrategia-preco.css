@@ -17,6 +17,20 @@
     padding: 14px 16px 20px;
 }
 
+.toast-sucesso-container {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(100%, 540px);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1200;
+    pointer-events: auto;
+    padding: 0 12px;
+}
+
 .page-shell {
     width: 100%;
     /*max-width: 1320px;*/
@@ -930,7 +944,7 @@ input[type="number"] {
 /* AVISOS ESTRATÉGIA */
 .avisos-container {
     position: fixed;
-    top: 16px;
+    top: 84px;
     left: 50%;
     transform: translateX(-50%);
     width: min(100%, 540px);
@@ -953,6 +967,12 @@ input[type="number"] {
     box-shadow: 0 14px 48px rgba(15, 23, 42, 0.12);
     color: #0f172a;
     animation: slideDown 0.3s ease-out;
+}
+
+.aviso-item.aviso-sucesso {
+    background-color: #e8f9ef;
+    border: 1px solid #b7e8c7;
+    color: #0f5132;
 }
 
 .aviso-item.aviso-critico {
@@ -979,6 +999,14 @@ input[type="number"] {
 
 .aviso-item.aviso-critico .aviso-icone svg {
     stroke: currentColor;
+}
+
+.aviso-item.aviso-sucesso .aviso-icone {
+    background-color: rgba(15, 81, 50, 0.12);
+}
+
+.aviso-item.aviso-sucesso .aviso-icone svg {
+    color: currentColor;
 }
 
 .aviso-icone svg {
@@ -1031,6 +1059,11 @@ input[type="number"] {
 
 .aviso-item.aviso-critico .aviso-titulo {
     color: rgba(255, 255, 255, 0.95);
+}
+
+.aviso-item.aviso-sucesso .aviso-titulo,
+.aviso-item.aviso-sucesso .aviso-texto span {
+    color: inherit;
 }
 
 .aviso-item.aviso-critico .aviso-texto span,

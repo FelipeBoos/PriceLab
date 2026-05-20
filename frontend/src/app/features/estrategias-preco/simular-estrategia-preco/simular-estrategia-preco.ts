@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   AfterViewInit,
   signal,
   ViewChild,
@@ -32,7 +33,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend);
   templateUrl: './simular-estrategia-preco.html',
   styleUrls: ['./simular-estrategia-preco.css'],
 })
-export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
+export class SimularEstrategiaPreco implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('graficoRosca') graficoRoscaRef?: ElementRef<HTMLCanvasElement>;
 
   produtoId: number | null = null;
@@ -41,9 +42,12 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
   resultadoSimulacao: EstrategiaPrecoResponse | null = null;
   produtos = signal<ProdutoResponse[]>([]);
+  mensagemToast: string | null = null;
 
   private grafico: Chart | null = null;
   private viewInicializada = false;
+  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private redirecionarTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private estrategiaPrecoService: EstrategiaPrecoService,
@@ -59,6 +63,18 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.viewInicializada = true;
     this.criarOuAtualizarGrafico();
+  }
+
+  ngOnDestroy(): void {
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
+
+    if (this.redirecionarTimeoutId) {
+      clearTimeout(this.redirecionarTimeoutId);
+      this.redirecionarTimeoutId = null;
+    }
   }
 
   carregarProdutos(): void {
@@ -78,7 +94,7 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
       this.margemLucro === null ||
       this.percentualImposto === null
     ) {
-      alert('Preencha todos os campos');
+      this.exibirToast('Preencha todos os campos.');
       return;
     }
 
@@ -174,12 +190,12 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
 
   salvarEstrategia(): void {
     if (!this.resultadoSimulacao) {
-      alert('Faça a simulação antes de salvar a estratégia.');
+      this.exibirToast('Faça a simulação antes de salvar a estratégia.');
       return;
     }
 
     if (this.temAvisosCriticos()) {
-      alert('Não é possível salvar uma estratégia com demanda zerada. Ajuste os parâmetros.');
+      this.exibirToast('Não é possível salvar uma estratégia com demanda zerada. Ajuste os parâmetros.');
       return;
     }
 
@@ -192,13 +208,45 @@ export class SimularEstrategiaPreco implements OnInit, AfterViewInit {
     this.estrategiaPrecoService.salvarEstrategiaPreco(estrategiaPrecoRequest).subscribe({
       next: (resposta) => {
         this.resultadoSimulacao = { ...resposta };
-        alert('Estratégia salva com sucesso.');
+        this.exibirToast('Estratégia salva com sucesso.');
+
+        sessionStorage.setItem('estrategiaPrecoToastSucesso', 'Estratégia salva com sucesso.');
+
+        if (this.redirecionarTimeoutId) {
+          clearTimeout(this.redirecionarTimeoutId);
+        }
+
+        this.redirecionarTimeoutId = setTimeout(() => {
+          this.router.navigate(['/app/estrategias-preco']);
+        }, 1200);
       },
       error: (erro: HttpErrorResponse) => {
         console.error('Erro ao salvar estratégia:', erro);
-        alert('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
+        this.exibirToast('Ocorreu um erro ao salvar a estratégia. Tente novamente.');
       }
     });
+  }
+
+  private exibirToast(mensagem: string): void {
+    this.mensagemToast = mensagem;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+    }
+
+    this.toastSucessoTimeoutId = setTimeout(() => {
+      this.mensagemToast = null;
+      this.toastSucessoTimeoutId = null;
+    }, 4000);
+  }
+
+  fecharToast(): void {
+    this.mensagemToast = null;
+
+    if (this.toastSucessoTimeoutId) {
+      clearTimeout(this.toastSucessoTimeoutId);
+      this.toastSucessoTimeoutId = null;
+    }
   }
 
   resetarFormulario(): void {

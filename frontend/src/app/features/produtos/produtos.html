@@ -1,5 +1,5 @@
 <section class="page">
-    @if (mensagemToastSucesso; as mensagem) {
+    @if (mensagemToast; as mensagem) {
         <div class="avisos-container">
             <div class="aviso-item aviso-sucesso">
                 <span class="aviso-icone" aria-hidden="true">
@@ -9,11 +9,11 @@
                 </span>
 
                 <div class="aviso-texto">
-                    <span class="aviso-titulo">Sucesso</span>
+                    <span class="aviso-titulo">Notificação</span>
                     <span>{{ mensagem }}</span>
                 </div>
 
-                <button type="button" class="aviso-close" (click)="fecharToastSucesso()" aria-label="Fechar aviso">
+                <button type="button" class="aviso-close" (click)="fecharToast()" aria-label="Fechar aviso">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"></path>
                         <path d="M6 6l12 12"></path>
@@ -183,7 +183,7 @@
                             <label for="precoCusto">{{ labelValorMoedaSelecionada }}</label>
                             <div class="input-prefixado input-curto">
                                 <span>{{ simboloMoedaSelecionada }}</span>
-                                <input id="precoCusto" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="," decimalMarker="." [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoCustoInput" (ngModelChange)="onPrecoCustoInputChange($event)" name="precoCusto" [required]="true">
+                                <input id="precoCusto" type="text" inputmode="decimal" [value]="precoCustoInput" (input)="onPrecoCustoInputChange($any($event.target).value)" (blur)="onPrecoCustoBlur()" name="precoCusto" [required]="true">
                             </div>
                         </div>
 
@@ -208,7 +208,7 @@
                         <label for="precoCusto">Custo em BRL</label>
                         <div class="input-prefixado input-curto">
                             <span>R$</span>
-                            <input id="precoCusto" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoCustoInput" (ngModelChange)="onPrecoCustoInputChange($event)" name="precoCusto" [required]="true">
+                            <input id="precoCusto" type="text" inputmode="decimal" [value]="precoCustoInput" (input)="onPrecoCustoInputChange($any($event.target).value)" (blur)="onPrecoCustoBlur()" name="precoCusto" [required]="true">
                         </div>
                     </div>
                 }
@@ -222,7 +222,7 @@
                                 <label for="freteInternacional">Frete internacional</label>
                                 <div class="input-prefixado">
                                     <span>R$</span>
-                                    <input id="freteInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="freteInternacionalInput" (ngModelChange)="onFreteInternacionalInputChange($event)" name="freteInternacional">
+                                    <input id="freteInternacional" type="text" inputmode="decimal" [value]="freteInternacionalInput" (input)="onFreteInternacionalInputChange($any($event.target).value)" (blur)="onFreteInternacionalBlur()" name="freteInternacional">
                                 </div>
                             </div>
 
@@ -230,7 +230,7 @@
                                 <label for="seguroInternacional">Seguro internacional</label>
                                 <div class="input-prefixado">
                                     <span>R$</span>
-                                    <input id="seguroInternacional" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="seguroInternacionalInput" (ngModelChange)="onSeguroInternacionalInputChange($event)" name="seguroInternacional">
+                                    <input id="seguroInternacional" type="text" inputmode="decimal" [value]="seguroInternacionalInput" (input)="onSeguroInternacionalInputChange($any($event.target).value)" (blur)="onSeguroInternacionalBlur()" name="seguroInternacional">
                                 </div>
                             </div>
 
@@ -284,7 +284,7 @@
                     <label for="precoVenda">Preço de venda</label>
                     <div class="input-prefixado input-curto">
                         <span>R$</span>
-                        <input id="precoVenda" type="text" inputmode="decimal" mask="separator.2" thousandSeparator="." decimalMarker="," [dropSpecialCharacters]="false" [allowNegativeNumbers]="false" [ngModel]="precoVendaInput" (ngModelChange)="onPrecoVendaInputChange($event)" name="precoVenda" [required]="true">
+                        <input id="precoVenda" type="text" inputmode="decimal" [value]="precoVendaInput" (input)="onPrecoVendaInputChange($any($event.target).value)" (blur)="onPrecoVendaBlur()" name="precoVenda" [required]="true">
                     </div>
                 </div>
             </section>

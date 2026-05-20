@@ -15,8 +15,8 @@ export class Categorias implements OnInit {
   nome = '';
   descricao = '';
   categorias = signal<CategoriaResponse[]>([]);
-  mensagemToastSucesso: string | null = null;
-  private toastSucessoTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  mensagemToast: string | null = null;
+  private toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   exibirFormulario = false;
   categoriaEmEdicaoId: number | null = null;
@@ -28,25 +28,25 @@ export class Categorias implements OnInit {
     this.carregarCategorias();
   }
 
-  private exibirToastSucesso(mensagem: string): void {
-    this.mensagemToastSucesso = mensagem;
+  private exibirToast(mensagem: string): void {
+    this.mensagemToast = mensagem;
 
-    if (this.toastSucessoTimeoutId) {
-      clearTimeout(this.toastSucessoTimeoutId);
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
     }
 
-    this.toastSucessoTimeoutId = setTimeout(() => {
-      this.mensagemToastSucesso = null;
-      this.toastSucessoTimeoutId = null;
+    this.toastTimeoutId = setTimeout(() => {
+      this.mensagemToast = null;
+      this.toastTimeoutId = null;
     }, 4000);
   }
 
-  fecharToastSucesso(): void {
-    this.mensagemToastSucesso = null;
+  fecharToast(): void {
+    this.mensagemToast = null;
 
-    if (this.toastSucessoTimeoutId) {
-      clearTimeout(this.toastSucessoTimeoutId);
-      this.toastSucessoTimeoutId = null;
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+      this.toastTimeoutId = null;
     }
   }
 
@@ -61,7 +61,7 @@ export class Categorias implements OnInit {
         .atualizarCategoria(this.categoriaEmEdicaoId, categoria)
         .subscribe({
           next: () => {
-            alert('Categoria atualizada com sucesso');
+            this.exibirToast('Categoria atualizada com sucesso.');
             this.resetarFormulario();
             this.carregarCategorias();
           },
@@ -74,7 +74,7 @@ export class Categorias implements OnInit {
         .cadastrarCategoria(categoria)
         .subscribe({
           next: () => {
-            this.exibirToastSucesso('Categoria salva com sucesso.');
+            this.exibirToast('Categoria salva com sucesso.');
             this.resetarFormulario();
             this.carregarCategorias();
           },
@@ -105,7 +105,7 @@ export class Categorias implements OnInit {
     this.categoriaService.deletarCategoria(id).subscribe({
       next: () => {
         console.log('Categoria deletada:', id);
-        alert('Categoria deletada com sucesso.');
+        this.exibirToast('Categoria deletada com sucesso.');
         this.carregarCategorias();
       },
       error: (erro: HttpErrorResponse) => {
@@ -125,16 +125,16 @@ export class Categorias implements OnInit {
             mensagemBackend.includes('categoria se ja existe um produto')
           )
         ) {
-          alert('Não é possível excluir esta categoria, pois existe produto vinculado a ela.');
+          this.exibirToast('Não é possível excluir esta categoria, pois existe produto vinculado a ela.');
           return;
         }
 
         if (erro.status === 404) {
-          alert('Categoria não encontrada.');
+          this.exibirToast('Categoria não encontrada.');
           return;
         }
 
-        alert('Ocorreu um erro ao excluir a categoria');
+        this.exibirToast('Ocorreu um erro ao excluir a categoria.');
       }
     });
   }

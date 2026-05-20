@@ -18,7 +18,7 @@ export interface CategoriaResponse {
 })
 export class CategoriaService {
 
-  private apiUrl = `${environment.apiBaseUrl}/categorias`;
+  private apiUrl = `${environment.apiUrl}/categorias`;
 
   constructor(private http: HttpClient) {}
 
