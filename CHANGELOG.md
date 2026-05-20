@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/FelipeBoos/PriceLab/compare/v1.3.0...v1.4.0) (2026-05-20)
+
+
+### Features
+
+* deploy application online ([#20](https://github.com/FelipeBoos/PriceLab/issues/20)) ([4b91127](https://github.com/FelipeBoos/PriceLab/commit/4b91127ff1a580d8be86d85bee83435d70437a8b))
+* **k8s:** deploy PriceLab application with Kubernetes orchestration ([#23](https://github.com/FelipeBoos/PriceLab/issues/23)) ([512e93a](https://github.com/FelipeBoos/PriceLab/commit/512e93ad14c84333467096dc4168669ef3c10c4c))
+* **observability:** add health checks and monitoring dashboards ([#25](https://github.com/FelipeBoos/PriceLab/issues/25)) ([a493953](https://github.com/FelipeBoos/PriceLab/commit/a4939536ca0d25a0b497b7ec1617c0574cad638e))
+
+
+### Bug Fixes
+
+* **EstrategiaPrecoService:** use percentage-based price variation for demand estimation ([#28](https://github.com/FelipeBoos/PriceLab/issues/28)) ([16ff3bf](https://github.com/FelipeBoos/PriceLab/commit/16ff3bf1e22129e75b6bf88318f8ba0222cf011c))
+* **task-28:** correct demand estimation using price elasticity percentage ([16ff3bf](https://github.com/FelipeBoos/PriceLab/commit/16ff3bf1e22129e75b6bf88318f8ba0222cf011c))
+
 ## [1.3.0](https://github.com/FelipeBoos/PriceLab/compare/v1.2.0...v1.3.0) (2026-04-22)
 
 
